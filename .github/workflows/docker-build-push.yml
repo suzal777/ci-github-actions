@@ -32,40 +32,40 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   pr-checks:
-  if: github.event_name == 'pull_request'
-  name: PR Research Checks
-  runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    name: PR Research Checks
+    runs-on: ubuntu-latest
 
-  steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
 
-    - name: Install ESLint
-      run: npm install -g eslint
+      - name: Install ESLint
+        run: npm install -g eslint
 
-    - name: Run ESLint (frontend)
-      working-directory: ./code/frontend
-      run: |
-        npm ci
-        npm run lint
+      - name: Run ESLint (frontend)
+        working-directory: ./code/frontend
+        run: |
+          npm ci
+          npm run lint
 
-    - name: Install TSLint
-      run: npm install -g tslint typescript
+      - name: Install TSLint
+        run: npm install -g tslint typescript
 
-    - name: Run TSLint (backend1)
-      working-directory: ./code/backend1
-      run: |
-        tslint -c tslint.json 'src/**/*.{ts,js}' 'test/**/*.{ts,js}' || exit 1
+      - name: Run TSLint (backend1)
+        working-directory: ./code/backend1
+        run: |
+          tslint -c tslint.json 'src/**/*.{ts,js}' 'test/**/*.{ts,js}' || exit 1
 
-    - name: Run TSLint (backend2)
-      working-directory: ./code/backend2
-      run: |
-        tslint -c tslint.json 'src/**/*.{ts,js}' 'test/**/*.{ts,js}' || exit 1        
+      - name: Run TSLint (backend2)
+        working-directory: ./code/backend2
+        run: |
+          tslint -c tslint.json 'src/**/*.{ts,js}' 'test/**/*.{ts,js}' || exit 1        
 
   build-and-push:
     if: github.event_name == 'push'
