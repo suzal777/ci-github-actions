@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     
     environment:
-      name: ${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
+      name: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
 
     steps:
       - name: Checkout code
