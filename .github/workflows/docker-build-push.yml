@@ -32,44 +32,40 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   pr-checks:
-    if: github.event_name == 'pull_request'
-    name: PR Research Checks
-    runs-on: ubuntu-latest
+  if: github.event_name == 'pull_request'
+  name: PR Research Checks
+  runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
 
-      - name: Install ESLint
-        run: npm install -g eslint
+    - name: Install ESLint
+      run: npm install -g eslint
 
-      - name: Run ESLint on frontend
-        run: |
-          eslint ./code/frontend --ext .js,.jsx,.ts,.tsx || exit 1
+    - name: Run ESLint (frontend)
+      working-directory: ./code/frontend
+      run: |
+        npm ci
+        npm run lint
 
-      - name: Install TSLint
-        run: npm install -g tslint typescript
+    - name: Install TSLint
+      run: npm install -g tslint typescript
 
-      - name: Run TSLint on backend1
-        run: |
-          if [ -f ./code/backend1/tslint.json ]; then
-            tslint -c ./code/backend1/tslint.json "./code/backend1/src/**/*.ts" || exit 1
-          else
-            echo "Skipping backend1: tslint.json not found"
-          fi
+    - name: Run TSLint (backend1)
+      working-directory: ./code/backend1
+      run: |
+        tslint -c tslint.json 'src/**/*.{ts,js}' 'test/**/*.{ts,js}' || exit 1
 
-      - name: Run TSLint on backend2
-        run: |
-          if [ -f ./code/backend2/tslint.json ]; then
-            tslint -c ./code/backend2/tslint.json "./code/backend2/src/**/*.ts" || exit 1
-          else
-            echo "Skipping backend2: tslint.json not found"
-          fi        
+    - name: Run TSLint (backend2)
+      working-directory: ./code/backend2
+      run: |
+        tslint -c tslint.json 'src/**/*.{ts,js}' 'test/**/*.{ts,js}' || exit 1        
 
   build-and-push:
     if: github.event_name == 'push'
