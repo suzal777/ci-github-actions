@@ -6,10 +6,13 @@ on:
 
   pull_request:
     branches: [dev]
-    types: [opened, synchronize, reopened]  
+    types: [opened, synchronize, reopened]
 
 env:
   DOCKERHUB_USER: suzal777
+  SHORT_SHA: ${{ github.sha }}
+  BRANCH_NAME: ${{ github.ref_name }}
+  VERSION: 1.0.0
 
 jobs:
   commit-lint:
@@ -60,20 +63,19 @@ jobs:
       - name: Run TSLint (backend1)
         working-directory: ./code/backend1
         run: |
-          run: yarn install --frozen-lockfile
+          yarn install --frozen-lockfile
           tslint -c tslint.json 'src/**/*.{ts,js}' 'test/**/*.{ts,js}' || exit 1
 
       - name: Run TSLint (backend2)
         working-directory: ./code/backend2
         run: |
-          run: yarn install --frozen-lockfile
-          tslint -c tslint.json 'src/**/*.{ts,js}' 'test/**/*.{ts,js}' || exit 1        
+          yarn install --frozen-lockfile
+          tslint -c tslint.json 'src/**/*.{ts,js}' 'test/**/*.{ts,js}' || exit 1
 
   build-and-push:
     if: github.event_name == 'push'
-    
     runs-on: ubuntu-latest
-    
+
     environment:
       name: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
 
@@ -86,15 +88,33 @@ jobs:
 
       - name: Build and Push Frontend
         run: |
-          docker build -t $DOCKERHUB_USER/frontend:latest ./code/frontend
-          docker push $DOCKERHUB_USER/frontend:latest
+          if [[ "${{ github.ref_name }}" == "main" ]]; then
+            docker build -t $DOCKERHUB_USER/frontend:latest -t $DOCKERHUB_USER/frontend:v${{ env.VERSION }} ./code/frontend
+            docker push $DOCKERHUB_USER/frontend:latest
+            docker push $DOCKERHUB_USER/frontend:v${{ env.VERSION }}
+          else
+            docker build -t $DOCKERHUB_USER/frontend:dev-${{ env.BRANCH_NAME }}-${{ env.SHORT_SHA::7 }} ./code/frontend
+            docker push $DOCKERHUB_USER/frontend:dev-${{ env.BRANCH_NAME }}-${{ env.SHORT_SHA::7 }}
+          fi
 
       - name: Build and Push Backend1
         run: |
-          docker build -t $DOCKERHUB_USER/backend1:latest ./code/backend1
-          docker push $DOCKERHUB_USER/backend1:latest
+          if [[ "${{ github.ref_name }}" == "main" ]]; then
+            docker build -t $DOCKERHUB_USER/backend1:latest -t $DOCKERHUB_USER/backend1:v${{ env.VERSION }} ./code/backend1
+            docker push $DOCKERHUB_USER/backend1:latest
+            docker push $DOCKERHUB_USER/backend1:v${{ env.VERSION }}
+          else
+            docker build -t $DOCKERHUB_USER/backend1:dev-${{ env.BRANCH_NAME }}-${{ env.SHORT_SHA::7 }} ./code/backend1
+            docker push $DOCKERHUB_USER/backend1:dev-${{ env.BRANCH_NAME }}-${{ env.SHORT_SHA::7 }}
+          fi
 
       - name: Build and Push Backend2
         run: |
-          docker build -t $DOCKERHUB_USER/backend2:latest ./code/backend2
-          docker push $DOCKERHUB_USER/backend2:latest
+          if [[ "${{ github.ref_name }}" == "main" ]]; then
+            docker build -t $DOCKERHUB_USER/backend2:latest -t $DOCKERHUB_USER/backend2:v${{ env.VERSION }} ./code/backend2
+            docker push $DOCKERHUB_USER/backend2:latest
+            docker push $DOCKERHUB_USER/backend2:v${{ env.VERSION }}
+          else
+            docker build -t $DOCKERHUB_USER/backend2:dev-${{ env.BRANCH_NAME }}-${{ env.SHORT_SHA::7 }} ./code/backend2
+            docker push $DOCKERHUB_USER/backend2:dev-${{ env.BRANCH_NAME }}-${{ env.SHORT_SHA::7 }}
+          fi
