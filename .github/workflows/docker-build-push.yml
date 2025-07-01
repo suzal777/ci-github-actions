@@ -51,8 +51,8 @@ jobs:
       - name: Run ESLint (frontend)
         working-directory: ./code/frontend
         run: |
-          npm ci
-          npm run lint
+          yarn install --frozen-lockfile
+          yarn lint
 
       - name: Install TSLint
         run: npm install -g tslint typescript
@@ -60,11 +60,13 @@ jobs:
       - name: Run TSLint (backend1)
         working-directory: ./code/backend1
         run: |
+          run: yarn install --frozen-lockfile
           tslint -c tslint.json 'src/**/*.{ts,js}' 'test/**/*.{ts,js}' || exit 1
 
       - name: Run TSLint (backend2)
         working-directory: ./code/backend2
         run: |
+          run: yarn install --frozen-lockfile
           tslint -c tslint.json 'src/**/*.{ts,js}' 'test/**/*.{ts,js}' || exit 1        
 
   build-and-push:
