@@ -74,6 +74,8 @@ jobs:
     if: github.event_name == 'push'
     
     runs-on: [test]
+    env:
+      GITHUB_RUN_HOSTNAME: ${{ runner.name }}
 
     environment:
       name: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
@@ -102,6 +104,8 @@ jobs:
   build-and-push-backend:
     if: github.event_name == 'push'
     runs-on: [test1]
+    env:
+      GITHUB_RUN_HOSTNAME: ${{ runner.name }}
 
     environment:
       name: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
