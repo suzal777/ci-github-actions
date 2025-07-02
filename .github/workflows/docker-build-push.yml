@@ -70,8 +70,9 @@ jobs:
           yarn install --frozen-lockfile
           tslint -c tslint.json 'src/**/*.{ts,js}' 'test/**/*.{ts,js}' || exit 1
 
-  build-and-push:
+  build-and-push-frontend:
     if: github.event_name == 'push'
+    
     runs-on: [test]
 
     environment:
@@ -96,6 +97,20 @@ jobs:
             docker build -t $DOCKERHUB_USER/frontend:dev-$BRANCH_NAME-$SHORT_SHA ./code/frontend
             docker push $DOCKERHUB_USER/frontend:dev-$BRANCH_NAME-$SHORT_SHA
           fi
+
+  build-and-push-backend:
+    if: github.event_name == 'push'
+    runs-on: [test1]
+
+    environment:
+      name: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Docker login
+        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
       - name: Build and Push Backend1
         run: |
@@ -122,3 +137,4 @@ jobs:
             docker build -t $DOCKERHUB_USER/backend2:dev-$BRANCH_NAME-$SHORT_SHA ./code/backend2
             docker push $DOCKERHUB_USER/backend2:dev-$BRANCH_NAME-$SHORT_SHA
           fi
+            
