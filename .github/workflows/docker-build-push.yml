@@ -74,8 +74,6 @@ jobs:
     if: github.event_name == 'push'
     
     runs-on: [test]
-    env:
-      GITHUB_RUN_HOSTNAME: ${{ runner.name }}
 
     environment:
       name: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
@@ -91,7 +89,7 @@ jobs:
         run: |
           SHORT_SHA=$(echo $GITHUB_SHA | cut -c1-7)
           BRANCH_NAME=$(echo $GITHUB_REF_NAME)
-          RUNNER_ID=$(echo $GITHUB_RUN_HOSTNAME)
+          RUNNER_ID=$(hostname)
           if [[ "$GITHUB_REF_NAME" == "main" ]]; then
             docker build -t $DOCKERHUB_USER/frontend:latest -t $DOCKERHUB_USER/frontend:v${VERSION} ./code/frontend
             docker push $DOCKERHUB_USER/frontend:latest
@@ -104,9 +102,7 @@ jobs:
   build-and-push-backend:
     if: github.event_name == 'push'
     runs-on: [test1]
-    env:
-      GITHUB_RUN_HOSTNAME: ${{ runner.name }}
-
+  
     environment:
       name: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
 
@@ -121,7 +117,7 @@ jobs:
         run: |
           SHORT_SHA=$(echo $GITHUB_SHA | cut -c1-7)
           BRANCH_NAME=$(echo $GITHUB_REF_NAME)
-          RUNNER_ID=$(echo $GITHUB_RUN_HOSTNAME)
+          RUNNER_ID=$(hostname)
           if [[ "$GITHUB_REF_NAME" == "main" ]]; then
             docker build -t $DOCKERHUB_USER/backend1:latest -t $DOCKERHUB_USER/backend1:v${VERSION} ./code/backend1
             docker push $DOCKERHUB_USER/backend1:latest
@@ -135,7 +131,7 @@ jobs:
         run: |
           SHORT_SHA=$(echo $GITHUB_SHA | cut -c1-7)
           BRANCH_NAME=$(echo $GITHUB_REF_NAME)
-          RUNNER_ID=$(echo $GITHUB_RUN_HOSTNAME)
+          RUNNER_ID=$(hostname)
           if [[ "$GITHUB_REF_NAME" == "main" ]]; then
             docker build -t $DOCKERHUB_USER/backend2:latest -t $DOCKERHUB_USER/backend2:v${VERSION} ./code/backend2
             docker push $DOCKERHUB_USER/backend2:latest
