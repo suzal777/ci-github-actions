@@ -89,13 +89,14 @@ jobs:
         run: |
           SHORT_SHA=$(echo $GITHUB_SHA | cut -c1-7)
           BRANCH_NAME=$(echo $GITHUB_REF_NAME)
+          RUNNER_ID=$(echo $GITHUB_RUN_NUMBER)
           if [[ "$GITHUB_REF_NAME" == "main" ]]; then
             docker build -t $DOCKERHUB_USER/frontend:latest -t $DOCKERHUB_USER/frontend:v${VERSION} ./code/frontend
             docker push $DOCKERHUB_USER/frontend:latest
             docker push $DOCKERHUB_USER/frontend:v${VERSION}
           else
-            docker build -t $DOCKERHUB_USER/frontend:dev-$BRANCH_NAME-$SHORT_SHA ./code/frontend
-            docker push $DOCKERHUB_USER/frontend:dev-$BRANCH_NAME-$SHORT_SHA
+            docker build -t $DOCKERHUB_USER/frontend:dev-$BRANCH_NAME-$SHORT_SHA-$RUNNER_ID ./code/frontend
+            docker push $DOCKERHUB_USER/frontend:dev-$BRANCH_NAME-$SHORT_SHA-$RUNNER_ID
           fi
 
   build-and-push-backend:
@@ -116,25 +117,27 @@ jobs:
         run: |
           SHORT_SHA=$(echo $GITHUB_SHA | cut -c1-7)
           BRANCH_NAME=$(echo $GITHUB_REF_NAME)
+          RUNNER_ID=$(echo $GITHUB_RUN_NUMBER)
           if [[ "$GITHUB_REF_NAME" == "main" ]]; then
             docker build -t $DOCKERHUB_USER/backend1:latest -t $DOCKERHUB_USER/backend1:v${VERSION} ./code/backend1
             docker push $DOCKERHUB_USER/backend1:latest
             docker push $DOCKERHUB_USER/backend1:v${VERSION}
           else
-            docker build -t $DOCKERHUB_USER/backend1:dev-$BRANCH_NAME-$SHORT_SHA ./code/backend1
-            docker push $DOCKERHUB_USER/backend1:dev-$BRANCH_NAME-$SHORT_SHA
+            docker build -t $DOCKERHUB_USER/backend1:dev-$BRANCH_NAME-$SHORT_SHA-$RUNNER_ID ./code/backend1
+            docker push $DOCKERHUB_USER/backend1:dev-$BRANCH_NAME-$SHORT_SHA-$RUNNER_ID
           fi
 
       - name: Build and Push Backend2
         run: |
           SHORT_SHA=$(echo $GITHUB_SHA | cut -c1-7)
           BRANCH_NAME=$(echo $GITHUB_REF_NAME)
+          RUNNER_ID=$(echo $GITHUB_RUN_NUMBER)
           if [[ "$GITHUB_REF_NAME" == "main" ]]; then
             docker build -t $DOCKERHUB_USER/backend2:latest -t $DOCKERHUB_USER/backend2:v${VERSION} ./code/backend2
             docker push $DOCKERHUB_USER/backend2:latest
             docker push $DOCKERHUB_USER/backend2:v${VERSION}
           else
-            docker build -t $DOCKERHUB_USER/backend2:dev-$BRANCH_NAME-$SHORT_SHA ./code/backend2
-            docker push $DOCKERHUB_USER/backend2:dev-$BRANCH_NAME-$SHORT_SHA
+            docker build -t $DOCKERHUB_USER/backend2:dev-$BRANCH_NAME-$SHORT_SHA-$RUNNER_ID ./code/backend2
+            docker push $DOCKERHUB_USER/backend2:dev-$BRANCH_NAME-$SHORT_SHA-$RUNNER_ID
           fi
             
