@@ -72,7 +72,7 @@ jobs:
 
   build-and-push:
     if: github.event_name == 'push'
-    runs-on: ubuntu-latest
+    runs-on: [test]
 
     environment:
       name: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
