@@ -14,6 +14,10 @@ COPY --from=builder /app ./
 
 COPY ./ ./
 
+ARG VITE_CLERK_PUBLISHABLE_KEY
+
+ENV VITE_CLERK_PUBLISHABLE_KEY=$VITE_CLERK_PUBLISHABLE_KEY
+
 RUN yarn build
 
 FROM nginx:alpine AS prod
