@@ -1,4 +1,4 @@
-FROM node:18-alpine AS builder
+FROM node:18-alpine
 
 WORKDIR /app
 
@@ -8,16 +8,6 @@ RUN yarn install
 
 COPY ./ ./
 
-RUN yarn build
+EXPOSE 3000
 
-FROM node:18-alpine AS prod
-
-WORKDIR /app
-
-RUN apk --no-cache add curl
-
-COPY --from=builder /app ./
-
-EXPOSE 3001
-
-CMD ["sh", "-c", "yarn migrate && node dist/index.js"]
+CMD ["sh", "-c", "yarn migrate && yarn start"]
