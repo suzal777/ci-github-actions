@@ -34,10 +34,9 @@ jobs:
 
   pr-checks:
     name: PR Research Checks
-    if: startsWith(github.head_ref, 'feature/')
     runs-on: ubuntu-latest
     needs: check-frontend-change
-    if: ${{ needs.check-frontend-change.outputs.changed == 'true' }}
+    if: ${{ needs.check-frontend-change.outputs.changed == 'true' && (github.event_name != 'pull_request' || startsWith(github.head_ref, 'feature/')) }}
 
     steps:
       - name: Checkout code
