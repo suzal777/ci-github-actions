@@ -12,12 +12,13 @@ class Blog {
     const [blog] = await knex(this.table)
       .insert({ title, content, authorId })
       .returning('*');
-    return blog;
+    
+      return blog;
   }
 
   // Get all blogs, joined with user info, ordered by createdAt descending
   public static async getAllBlogs() {
-    return await knex(this.table)
+    return knex(this.table)
       .join('users', 'blogs.authorId', 'users.id')
       .select(
         'blogs.*',
@@ -30,7 +31,7 @@ class Blog {
 
   // Get a blog by its id, joined with user info
   public static async getBlogById(id: number) {
-    return await knex(this.table)
+    return knex(this.table)
       .join('users', 'blogs.authorId', 'users.id')
       .select(
         'blogs.*',

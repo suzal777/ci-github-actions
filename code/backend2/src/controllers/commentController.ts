@@ -17,6 +17,7 @@ export const createComment = async (req: Request, res: Response) => {
 
   if (!content || !userId || !blogId) {
     res.status(400).json({ error: "Missing required fields" });
+    
     return;
   }
   try {

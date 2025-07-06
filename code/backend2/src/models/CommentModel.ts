@@ -12,12 +12,13 @@ class Comment {
     const [comment] = await knex(this.table)
       .insert({ content, userId, blogId })
       .returning('*');
-    return comment;
+    
+      return comment;
   }
 
   // Get all comments for a blog, joined with user info, ordered by createdAt ascending
   public static async getCommentsForBlog(blogId: number) {
-    return await knex(this.table)
+    return knex(this.table)
       .join('users', 'comments.userId', 'users.id')
       .select(
         'comments.*',
