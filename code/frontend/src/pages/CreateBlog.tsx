@@ -105,7 +105,7 @@ const CreateBlog: React.FC = () => {
                 }
             );
             setUserExists(true);
-        } catch (err: unknown) {
+        } catch (err: any) {
             setSignupError(err.response?.data?.error || "Failed to create user");
         } finally {
             setSignupLoading(false);
@@ -132,7 +132,7 @@ const CreateBlog: React.FC = () => {
                 }
             );
             navigate("/blogs");
-        } catch (err: unknown) {
+        } catch (err: any) {
             setError(err.response?.data?.error || "Failed to create blog");
         } finally {
             setLoading(false);

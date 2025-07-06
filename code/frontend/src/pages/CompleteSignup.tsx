@@ -34,7 +34,7 @@ const CompleteSignup: React.FC = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       window.location.href = "/blogs";
-    } catch (err: unknown) {
+    } catch (err: any) {
       setError(err.response?.data?.error || "Failed to complete signup");
     } finally {
       setLoading(false);
