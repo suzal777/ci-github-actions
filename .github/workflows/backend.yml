@@ -18,10 +18,28 @@ env:
   VERSION: 1.0.0
 
 jobs:
+  check-backend-change:
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.filter.outputs.backend }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Detect Backend Changes
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            backend:
+              - 'code/backend1/**'
+              - 'code/backend2/**'
+
   pr-checks:
     name: PR Research Checks
     if: startsWith(github.head_ref, 'feature/')
     runs-on: ubuntu-latest
+    needs: check-backend-change
 
     steps:
       - name: Checkout code
@@ -45,29 +63,11 @@ jobs:
         working-directory: ./code/backend2
         run: |
           yarn install --frozen-lockfile
-          tslint -c tslint.json 'src/**/*.{ts,js}' 'test/**/*.{ts,js}' || exit 1 
-
-  check-backend-change:
-    runs-on: ubuntu-latest
-    needs: pr-checks
-    outputs:
-      changed: ${{ steps.filter.outputs.backend }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Detect Backend Changes
-        id: filter
-        uses: dorny/paths-filter@v3
-        with:
-          filters: |
-            backend:
-              - 'code/backend1/**'
-              - 'code/backend2/**'
+          tslint -c tslint.json 'src/**/*.{ts,js}' 'test/**/*.{ts,js}' || exit 1             
 
   build-and-push-backend:
     runs-on: [backend]
-    needs: check-backend-change
+    needs: pr-checks
   
     environment:
       name: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
