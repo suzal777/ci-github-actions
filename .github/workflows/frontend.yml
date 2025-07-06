@@ -19,10 +19,12 @@ jobs:
   check-frontend-change:
     runs-on: ubuntu-latest
     outputs:
-      changed: ${{ steps.filter.outputs.frontend }}
+      changed: ${{ steps.filter.outputs.frontend == 'true' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Detect Frontend Changes
         id: filter
@@ -36,7 +38,9 @@ jobs:
     name: PR Research Checks
     runs-on: ubuntu-latest
     needs: check-frontend-change
-    if: ${{ needs.check-frontend-change.outputs.changed == 'true' && (github.event_name != 'pull_request' || startsWith(github.head_ref, 'feature/')) }}
+    if: |
+      needs.check-frontend-change.outputs.changed == 'true' && 
+      (github.event_name == 'pull_request' && startsWith(github.head_ref, 'feature/'))
 
     steps:
       - name: Checkout code
@@ -59,7 +63,9 @@ jobs:
   build-and-push-frontend:
     runs-on: [frontend]
     needs: [check-frontend-change, pr-checks]
-    if: ${{ needs.check-frontend-change.outputs.changed == 'true' && needs.pr-checks.result == 'success' }}
+    if: |
+      needs.check-frontend-change.outputs.changed == 'true' &&
+      (github.event_name != 'pull_request' || needs.pr-checks.result == 'success')
 
     environment:
       name: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}

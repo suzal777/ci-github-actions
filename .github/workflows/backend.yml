@@ -6,7 +6,6 @@ on:
     paths:
       - 'code/backend1/**'
       - 'code/backend2/**'
-
   pull_request:
     branches: [dev]
     paths:
@@ -21,10 +20,14 @@ jobs:
   check-backend-change:
     runs-on: ubuntu-latest
     outputs:
-      changed: ${{ steps.filter.outputs.backend }}
+      changed: ${{ steps.filter.outputs.backend == 'true' }}
+      backend1_changed: ${{ steps.filter.outputs.backend1 == 'true' }}
+      backend2_changed: ${{ steps.filter.outputs.backend2 == 'true' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Detect Backend Changes
         id: filter
@@ -34,13 +37,19 @@ jobs:
             backend:
               - 'code/backend1/**'
               - 'code/backend2/**'
+            backend1:
+              - 'code/backend1/**'
+            backend2:
+              - 'code/backend2/**'
 
   pr-checks:
     name: PR Research Checks
     runs-on: ubuntu-latest
     needs: check-backend-change
-    if: ${{ needs.check-backend-change.outputs.changed == 'true' && (github.event_name != 'pull_request' || startsWith(github.head_ref, 'feature/')) }}
-
+    if: |
+      needs.check-backend-change.outputs.changed == 'true' &&
+      (github.event_name == 'pull_request' && startsWith(github.head_ref, 'feature/'))
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -50,25 +59,49 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Cache node modules (backend1)
+        if: needs.check-backend-change.outputs.backend1_changed == 'true'
+        uses: actions/cache@v3
+        with:
+          path: code/backend1/node_modules
+          key: ${{ runner.os }}-backend1-node-${{ hashFiles('code/backend1/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-backend1-node-
+
+      - name: Cache node modules (backend2)
+        if: needs.check-backend-change.outputs.backend2_changed == 'true'
+        uses: actions/cache@v3
+        with:
+          path: code/backend2/node_modules
+          key: ${{ runner.os }}-backend2-node-${{ hashFiles('code/backend2/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-backend2-node-
+
       - name: Install TSLint
         run: npm install -g tslint typescript
 
       - name: Run TSLint (backend1)
+        if: needs.check-backend-change.outputs.backend1_changed == 'true'
         working-directory: ./code/backend1
         run: |
           yarn install --frozen-lockfile
           tslint -c tslint.json 'src/**/*.{ts,js}' 'test/**/*.{ts,js}' || exit 1
 
       - name: Run TSLint (backend2)
+        if: needs.check-backend-change.outputs.backend2_changed == 'true'
         working-directory: ./code/backend2
         run: |
           yarn install --frozen-lockfile
-          tslint -c tslint.json 'src/**/*.{ts,js}' 'test/**/*.{ts,js}' || exit 1             
+          tslint -c tslint.json 'src/**/*.{ts,js}' 'test/**/*.{ts,js}' || exit 1
 
   build-and-push-backend:
     runs-on: [backend]
-    needs: [check-backend-change, pr-checks]
-    if: ${{ needs.check-backend-change.outputs.changed == 'true' && needs.pr-checks.result == 'success' }}
+    needs: 
+      - check-backend-change
+      - pr-checks
+    if: |
+      needs.check-backend-change.outputs.changed == 'true' &&
+      (github.event_name != 'pull_request' || needs.pr-checks.result == 'success')
 
     environment:
       name: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
@@ -81,6 +114,7 @@ jobs:
         run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
       - name: Build and Push Backend1
+        if: needs.check-backend-change.outputs.backend1_changed == 'true'
         run: |
           SHORT_SHA=$(echo $GITHUB_SHA | cut -c1-7)
           BRANCH_NAME=$(echo $GITHUB_REF_NAME | tr '/' '-')
@@ -94,6 +128,7 @@ jobs:
           fi
 
       - name: Build and Push Backend2
+        if: needs.check-backend-change.outputs.backend2_changed == 'true'
         run: |
           SHORT_SHA=$(echo $GITHUB_SHA | cut -c1-7)
           BRANCH_NAME=$(echo $GITHUB_REF_NAME | tr '/' '-')
@@ -105,3 +140,7 @@ jobs:
             docker build -t $DOCKERHUB_USER/backend2:$BRANCH_NAME-$SHORT_SHA ./code/backend2
             docker push $DOCKERHUB_USER/backend2:$BRANCH_NAME-$SHORT_SHA
           fi
+
+      - name: Docker logout
+        if: always()
+        run: docker logout
