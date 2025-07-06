@@ -2,7 +2,7 @@ name: Frontend Build & Push
 
 on:
   push:
-    branches: [main, dev]
+    branches: [main, dev, feature/*]
     paths:
       - 'code/frontend/**'
 
