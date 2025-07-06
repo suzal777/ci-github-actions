@@ -22,7 +22,7 @@ env:
 
 jobs:
   check-frontend-change:
-    if: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'dev' }}
+    if: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     outputs:
       changed: ${{ steps.filter.outputs.frontend }}
