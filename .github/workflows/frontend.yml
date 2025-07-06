@@ -1,19 +1,47 @@
 name: Frontend Build & Push
 
 on:
-  workflow_run:
-    workflows: ["PR checks"]
-    types:
-      - completed
+  push:
+    branches: [main, dev]
+    paths:
+      - 'code/frontend/**'
+
+  pull_request:
+    branches: [dev]
+    paths:
+      - 'code/frontend/**'  
 
 env:
   DOCKERHUB_USER: suzal777
   VERSION: 1.0.0
 
 jobs:
-  check-frontend-change:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+  pr-checks:
+    name: PR Research Checks
+    if: startsWith(github.head_ref, 'feature/')
     runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install ESLint
+        run: npm install -g eslint
+
+      - name: Run ESLint (frontend)
+        working-directory: ./code/frontend
+        run: |
+          yarn install --frozen-lockfile
+          yarn lint
+
+  check-frontend-change:
+    runs-on: ubuntu-latest
+    needs: pr-checks
     outputs:
       changed: ${{ steps.filter.outputs.frontend }}
     steps:
@@ -31,9 +59,11 @@ jobs:
   build-and-push-frontend:
     runs-on: [frontend]
     needs: check-frontend-change
-    if: ${{ needs.check-frontend-change.outputs.changed == 'true' }}
+
+    if: ${{ github.event_name != 'workflow_run' || needs.check-frontend-change.outputs.changed == 'true' }}
+
     environment:
-      name: ${{ github.event.workflow_run.head_branch == 'main' && 'production' || 'development' }}
+      name: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
 
     steps:
       - name: Checkout code
@@ -45,8 +75,8 @@ jobs:
       - name: Build and Push Frontend
         run: |
           SHORT_SHA=$(echo $GITHUB_SHA | cut -c1-7)
-          BRANCH_NAME=$(echo ${{ github.event.workflow_run.head_branch }} | tr '/' '-')
-          if [[ "$BRANCH_NAME" == "main" ]]; then
+          BRANCH_NAME=$(echo $GITHUB_REF_NAME | tr '/' '-')
+          if [[ "$GITHUB_REF_NAME" == "main" ]]; then
             docker build --build-arg VITE_CLERK_PUBLISHABLE_KEY=${{ secrets.VITE_CLERK_PUBLISHABLE_KEY }} -t $DOCKERHUB_USER/frontend:latest -t $DOCKERHUB_USER/frontend:v${VERSION} ./code/frontend
             docker push $DOCKERHUB_USER/frontend:latest
             docker push $DOCKERHUB_USER/frontend:v${VERSION}
