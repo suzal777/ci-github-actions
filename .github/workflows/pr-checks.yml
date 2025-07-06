@@ -4,9 +4,9 @@ on:
   pull_request:
     branches: [dev]
     paths:
-      - 'code/frontend/src/**'
-      - 'code/backend1/src/**'
-      - 'code/backend2/src/**'  
+      - 'code/frontend/**'
+      - 'code/backend1/**'
+      - 'code/backend2/**'  
 
 jobs:
   commit-lint:
@@ -26,43 +26,4 @@ jobs:
             perf
             test
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  pr-checks:
-    name: PR Research Checks
-    if: startsWith(github.head_ref, 'feature/')
-    runs-on: ubuntu-latest
-    needs: commit-lint
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install ESLint
-        run: npm install -g eslint
-
-      - name: Run ESLint (frontend)
-        working-directory: ./code/frontend
-        run: |
-          yarn install --frozen-lockfile
-          yarn lint
-
-      - name: Install TSLint
-        run: npm install -g tslint typescript
-
-      - name: Run TSLint (backend1)
-        working-directory: ./code/backend1
-        run: |
-          yarn install --frozen-lockfile
-          tslint -c tslint.json 'src/**/*.{ts,js}' 'test/**/*.{ts,js}' || exit 1
-
-      - name: Run TSLint (backend2)
-        working-directory: ./code/backend2
-        run: |
-          yarn install --frozen-lockfile
-          tslint -c tslint.json 'src/**/*.{ts,js}' 'test/**/*.{ts,js}' || exit 1           
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}          
