@@ -24,7 +24,6 @@ env:
 
 jobs:
   check-backend-change:
-    if: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'dev' }}
     runs-on: ubuntu-latest
     outputs:
       changed: ${{ steps.filter.outputs.backend }}

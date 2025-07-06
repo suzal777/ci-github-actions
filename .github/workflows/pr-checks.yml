@@ -4,9 +4,9 @@ on:
   pull_request:
     branches: [dev]
     paths:
-      - 'code/frontend/**'
-      - 'code/backend1/**'
-      - 'code/backend2/**'  
+      - 'code/frontend/src/**'
+      - 'code/backend1/src/**'
+      - 'code/backend2/src/**'  
 
 jobs:
   commit-lint:
