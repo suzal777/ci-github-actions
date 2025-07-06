@@ -58,10 +58,10 @@ jobs:
           SHORT_SHA=$(echo $GITHUB_SHA | cut -c1-7)
           BRANCH_NAME=$(echo $GITHUB_REF_NAME | tr '/' '-')
           if [[ "$GITHUB_REF_NAME" == "main" ]]; then
-            docker build -t $DOCKERHUB_USER/frontend:latest -t $DOCKERHUB_USER/frontend:v${VERSION} ./code/frontend
+            docker build --build-arg VITE_CLERK_PUBLISHABLE_KEY=${{ secrets.VITE_CLERK_PUBLISHABLE_KEY }} -t $DOCKERHUB_USER/frontend:latest -t $DOCKERHUB_USER/frontend:v${VERSION} ./code/frontend
             docker push $DOCKERHUB_USER/frontend:latest
             docker push $DOCKERHUB_USER/frontend:v${VERSION}
           else
-            docker build -t $DOCKERHUB_USER/frontend:$BRANCH_NAME-$SHORT_SHA ./code/frontend
+            docker build --build-arg VITE_CLERK_PUBLISHABLE_KEY=${{ secrets.VITE_CLERK_PUBLISHABLE_KEY }} -t $DOCKERHUB_USER/frontend:$BRANCH_NAME-$SHORT_SHA ./code/frontend
             docker push $DOCKERHUB_USER/frontend:$BRANCH_NAME-$SHORT_SHA
           fi
