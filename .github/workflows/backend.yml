@@ -2,7 +2,7 @@ name: Backend Build & Push
 
 on:
   push:
-    branches: [main, dev, feature/*]
+    branches: [main, dev]
     paths:
       - 'code/backend1/**'
       - 'code/backend2/**'
