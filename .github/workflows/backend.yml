@@ -68,8 +68,8 @@ jobs:
   build-and-push-backend:
     runs-on: [backend]
     needs: [check-backend-change, pr-checks]
-    if: ${{ needs.check-backend-change.outputs.changed == 'true' }}
-  
+    if: ${{ needs.check-backend-change.outputs.changed == 'true' && needs.pr-checks.result == 'success' }}
+
     environment:
       name: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
 

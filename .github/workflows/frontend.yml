@@ -9,7 +9,7 @@ on:
   pull_request:
     branches: [dev]
     paths:
-      - 'code/frontend/**'  
+      - 'code/frontend/**'
 
 env:
   DOCKERHUB_USER: suzal777
@@ -54,12 +54,12 @@ jobs:
         working-directory: ./code/frontend
         run: |
           yarn install --frozen-lockfile
-          yarn lint            
+          yarn lint
 
   build-and-push-frontend:
     runs-on: [frontend]
     needs: [check-frontend-change, pr-checks]
-    if: ${{ needs.check-frontend-change.outputs.changed == 'true' }}
+    if: ${{ needs.check-frontend-change.outputs.changed == 'true' && needs.pr-checks.result == 'success' }}
 
     environment:
       name: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
