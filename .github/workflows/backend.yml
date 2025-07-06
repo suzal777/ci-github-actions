@@ -57,7 +57,7 @@ jobs:
       - name: Build and Push Backend1
         run: |
           SHORT_SHA=$(echo $GITHUB_SHA | cut -c1-7)
-          BRANCH_NAME=$(echo $GITHUB_REF_NAME)
+          BRANCH_NAME=$(echo $GITHUB_REF_NAME | tr '/' '-')
           if [[ "$GITHUB_REF_NAME" == "main" ]]; then
             docker build -t $DOCKERHUB_USER/backend1:latest -t $DOCKERHUB_USER/backend1:v${VERSION} ./code/backend1
             docker push $DOCKERHUB_USER/backend1:latest
@@ -70,7 +70,7 @@ jobs:
       - name: Build and Push Backend2
         run: |
           SHORT_SHA=$(echo $GITHUB_SHA | cut -c1-7)
-          BRANCH_NAME=$(echo $GITHUB_REF_NAME)
+          BRANCH_NAME=$(echo $GITHUB_REF_NAME | tr '/' '-')
           if [[ "$GITHUB_REF_NAME" == "main" ]]; then
             docker build -t $DOCKERHUB_USER/backend2:latest -t $DOCKERHUB_USER/backend2:v${VERSION} ./code/backend2
             docker push $DOCKERHUB_USER/backend2:latest
