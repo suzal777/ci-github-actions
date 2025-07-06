@@ -42,11 +42,6 @@ jobs:
 
   build-and-push-backend:
     runs-on: [backend]
-
-    if: >
-      github.event_name != 'workflow_run' ||
-      (github.event_name == 'workflow_run' && needs.check-backend-change.outputs.changed == 'true')
-
     needs: check-backend-change
   
     environment:
