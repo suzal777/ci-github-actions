@@ -45,7 +45,7 @@ jobs:
       github.event_name != 'workflow_run' ||
       (github.event_name == 'workflow_run' && needs.check-frontend-change.outputs.changed == 'true')
 
-    needs: ${{ github.event_name == 'workflow_run' && 'check-frontend-change' || '' }}
+    needs: check-frontend-change
 
     environment:
       name: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
