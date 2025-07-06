@@ -4,12 +4,12 @@ on:
   push:
     branches: [main, dev]
     paths:
-      - 'code/frontend/**'
+      - 'code/frontend/src/**'
 
   pull_request:
     branches: [dev]
     paths:
-      - 'code/frontend/**'
+      - 'code/frontend/src/**'
 
 env:
   DOCKERHUB_USER: suzal777
