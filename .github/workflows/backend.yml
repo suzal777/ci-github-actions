@@ -20,9 +20,9 @@ jobs:
   check-backend-change:
     runs-on: ubuntu-latest
     outputs:
-      changed: ${{ steps.filter.outputs.backend == 'true' }}
-      backend1_changed: ${{ steps.filter.outputs.backend1 == 'true' }}
-      backend2_changed: ${{ steps.filter.outputs.backend2 == 'true' }}
+      changed: ${{ steps.filter.outputs.backend }}
+      backend1_changed: ${{ steps.filter.outputs.backend1 }}
+      backend2_changed: ${{ steps.filter.outputs.backend2 }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
