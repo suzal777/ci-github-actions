@@ -134,7 +134,7 @@ const SingleBlog: React.FC = () => {
             );
             setCommentText("");
             window.location.reload();
-        } catch (err: unknown) {
+        } catch (err: any) {
             setCommentError(err.response?.data?.error || "Failed to add comment");
         } finally {
             setCommentLoading(false);

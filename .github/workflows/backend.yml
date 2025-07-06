@@ -1,22 +1,10 @@
 name: Backend Build & Push
 
 on:
-  push:
-    branches: [main, dev]
-    paths:
-      - 'code/backend1/**'
-      - 'code/backend2/**'
-
-  pull_request:
-    branches: [dev]
-    paths:
-      - 'code/backend1/**'
-      - 'code/backend2/**'
-
   workflow_run:
     workflows: ["PR checks"]
     types:
-      - completed    
+      - completed
 
 env:
   DOCKERHUB_USER: suzal777
@@ -24,7 +12,7 @@ env:
 
 jobs:
   check-backend-change:
-    if: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'dev' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     outputs:
       changed: ${{ steps.filter.outputs.backend }}
@@ -43,15 +31,10 @@ jobs:
 
   build-and-push-backend:
     runs-on: [backend]
-
-    if: >
-      github.event_name != 'workflow_run' ||
-      (github.event_name == 'workflow_run' && needs.check-backend-change.outputs.changed == 'true')
-
     needs: check-backend-change
-  
+    if: ${{ needs.check-backend-change.outputs.changed == 'true' }}
     environment:
-      name: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
+      name: ${{ github.event.workflow_run.head_branch == 'main' && 'production' || 'development' }}
 
     steps:
       - name: Checkout code
@@ -63,8 +46,8 @@ jobs:
       - name: Build and Push Backend1
         run: |
           SHORT_SHA=$(echo $GITHUB_SHA | cut -c1-7)
-          BRANCH_NAME=$(echo $GITHUB_REF_NAME)
-          if [[ "$GITHUB_REF_NAME" == "main" ]]; then
+          BRANCH_NAME=$(echo ${{ github.event.workflow_run.head_branch }} | tr '/' '-')
+          if [[ "$BRANCH_NAME" == "main" ]]; then
             docker build -t $DOCKERHUB_USER/backend1:latest -t $DOCKERHUB_USER/backend1:v${VERSION} ./code/backend1
             docker push $DOCKERHUB_USER/backend1:latest
             docker push $DOCKERHUB_USER/backend1:v${VERSION}
@@ -76,8 +59,8 @@ jobs:
       - name: Build and Push Backend2
         run: |
           SHORT_SHA=$(echo $GITHUB_SHA | cut -c1-7)
-          BRANCH_NAME=$(echo $GITHUB_REF_NAME)
-          if [[ "$GITHUB_REF_NAME" == "main" ]]; then
+          BRANCH_NAME=$(echo ${{ github.event.workflow_run.head_branch }} | tr '/' '-')
+          if [[ "$BRANCH_NAME" == "main" ]]; then
             docker build -t $DOCKERHUB_USER/backend2:latest -t $DOCKERHUB_USER/backend2:v${VERSION} ./code/backend2
             docker push $DOCKERHUB_USER/backend2:latest
             docker push $DOCKERHUB_USER/backend2:v${VERSION}

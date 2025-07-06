@@ -82,7 +82,7 @@ export function useAllBlogs() {
 
 // Example: fetch user by id with Clerk session (for use in CreateBlog, etc.)
 export function useUserById(userId?: string) {
-  const [user, setUser] = useState<unknown>(null);
+  const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { getToken } = useAuth();
@@ -99,7 +99,7 @@ export function useUserById(userId?: string) {
           },
         });
         setUser(res.data);
-      } catch (err: unknown) {
+      } catch (err: any) {
         setError(err.response?.data?.error || err.message);
       } finally {
         setLoading(false);
