@@ -40,12 +40,9 @@ jobs:
 
   build-and-push-frontend:
     runs-on: [frontend]
-
-    if: >
-      github.event_name != 'workflow_run' ||
-      (github.event_name == 'workflow_run' && needs.check-frontend-change.outputs.changed == 'true')
-
     needs: check-frontend-change
+
+    if: ${{ github.event_name != 'workflow_run' || needs.check-frontend-change.outputs.changed == 'true' }}
 
     environment:
       name: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
@@ -69,4 +66,3 @@ jobs:
             docker build -t $DOCKERHUB_USER/frontend:$BRANCH_NAME-$SHORT_SHA ./code/frontend
             docker push $DOCKERHUB_USER/frontend:$BRANCH_NAME-$SHORT_SHA
           fi
-  
