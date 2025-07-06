@@ -13,6 +13,7 @@ export const createBlog = async (req: Request, res: Response) => {
 
   if (!title || !content || !authorId) {
     res.status(400).json({ error: "Missing required fields" });
+    
     return;
   }
   try {
@@ -38,6 +39,7 @@ export const getBlog = async (req: Request, res: Response) => {
     const blog = await blogService.findBlogById(id);
     if (!blog) {
       res.status(404).json({ error: "Blog not found" });
+      
       return;
     }
     res.json(blog);

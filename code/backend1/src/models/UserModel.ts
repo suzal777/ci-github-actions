@@ -15,11 +15,13 @@ class User {
         lastName,
       })
       .returning("*");
-    return insertedValue;
+    
+      return insertedValue;
   }
 
   public static async getUserById(id: string) {
     const user = await knex(this.table).where({ id }).first();
+    
     return user;
   }
 }

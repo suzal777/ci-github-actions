@@ -17,12 +17,12 @@ export const getUserById = async (id: string): Promise<{ user: User | null; mess
       },
       message: 'User fetched successfully'
     };
-  } else {
+  } 
+  
     return {
       user: null,
       message: 'User not found'
     };
-  }
 };
 
 export const createUser = async (user: User): Promise<{ user: User; message: string }> => {
@@ -30,6 +30,7 @@ export const createUser = async (user: User): Promise<{ user: User; message: str
   // knex-stringcase will automatically map camelCase to snake_case in DB
   const insertedUsers = await UserModel.addUser(user.id, user.firstName, user.lastName);
   const insertedUser = insertedUsers[0];
+  
   return {
     user: {
       id: insertedUser.id,

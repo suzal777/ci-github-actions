@@ -29,11 +29,12 @@ export const addUser = (req: Request, res: Response, next: NextFunction) => {
 
   if (!clerkUserId || !firstName || !lastName) {
     res.status(400).json({ error: "Missing required fields" });
+    
     return;
   }
 
   userService
-    .createUser({ id: clerkUserId, firstName, lastName })
+    .createUser({ firstName, lastName, id: clerkUserId })
     .then((result) => res.status(201).json(result))
     .catch((err) => next(err));
 };
