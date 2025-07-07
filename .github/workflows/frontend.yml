@@ -67,6 +67,17 @@ jobs:
         with:
           fetch-depth: 0
 
+      # CHANGED: Added explicit version validation
+      - name: Verify previous tags
+        id: verify-tags
+        run: |
+          if ! git describe --tags --abbrev=0; then
+            echo "No existing tags found, starting from v1.0.0"
+            echo "version=v1.0.0" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+      # CHANGED: Pinned to exact version v6.0
       - name: Get Semantic Version
         id: semver
         uses: mathieudutour/github-tag-action@v6.0
@@ -147,10 +158,10 @@ jobs:
     runs-on: [frontend]
     needs: [pr-checks, check-dev-merge, determine-version]
     if: |
-      needs.check-frontend-change.outputs.changed == 'true' &&
-      (github.event_name != 'pull_request' || needs.pr-checks.result == 'success') 
+      github.ref == 'refs/heads/main' &&
+      needs.check-dev-merge.outputs.is_dev_merge == 'true'
     environment:
-      name: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
+      name: production
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -158,30 +169,38 @@ jobs:
       - name: Docker login
         run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
+      # CHANGED: Simplified and secured version handling
       - name: Build and Push Frontend
         env:
           VERSION: ${{ needs.determine-version.outputs.semver }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if [[ "$GITHUB_REF_NAME" == "main" ]]; then
-            if [[ "${{ needs.check-dev-merge.outputs.is_dev_merge }}" == "true" ]]; then
-              # Case 1: Dev→Main merge (SemVer release)
-              docker build \
-                --build-arg VITE_CLERK_PUBLISHABLE_KEY=${{ secrets.VITE_CLERK_PUBLISHABLE_KEY }} \
-                -t $DOCKERHUB_USER/frontend:latest \
-                -t $DOCKERHUB_USER/frontend:$VERSION \
-                ./code/frontend
-              docker push $DOCKERHUB_USER/frontend:latest
-              docker push $DOCKERHUB_USER/frontend:$VERSION
-              
-              # Create GitHub release
-              gh release create v$VERSION \
-                --title "Release v$VERSION" \
-                --notes "Production release" \
-                --target main
-            fi
-          fi      
+          # ADDED: Version validation
+          if [[ -z "$VERSION" ]]; then
+            echo "ERROR: Version not determined!"
+            exit 1
+          fi
+
+          echo "Building version: $VERSION"
+          
+          # CHANGED: Removed nested conditionals
+          docker build \
+            --build-arg VITE_CLERK_PUBLISHABLE_KEY=${{ secrets.VITE_CLERK_PUBLISHABLE_KEY }} \
+            -t $DOCKERHUB_USER/frontend:latest \
+            -t $DOCKERHUB_USER/frontend:${VERSION#v} \  # REMOVED 'v' prefix
+            ./code/frontend
+          
+          docker push $DOCKERHUB_USER/frontend:latest
+          docker push $DOCKERHUB_USER/frontend:${VERSION#v}
+
+          # CHANGED: Added error handling for release creation
+          if ! gh release create $VERSION \
+            --title "Release $VERSION" \
+            --notes "Production release" \
+            --target main; then
+            echo "Failed to create release"
+            exit 1
+          fi
 
       - name: Docker logout
         if: always()
-        run: docker logout      
+        run: docker logout     
