@@ -159,11 +159,13 @@ jobs:
         run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
       - name: Build and Push Frontend
+        env:
+          VERSION: ${{ needs.determine-version.outputs.semver }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [[ "$GITHUB_REF_NAME" == "main" ]]; then
             if [[ "${{ needs.check-dev-merge.outputs.is_dev_merge }}" == "true" ]]; then
               # Case 1: Dev→Main merge (SemVer release)
-              VERSION=${{ needs.determine-version.outputs.semver }}
               docker build \
                 --build-arg VITE_CLERK_PUBLISHABLE_KEY=${{ secrets.VITE_CLERK_PUBLISHABLE_KEY }} \
                 -t $DOCKERHUB_USER/frontend:latest \
