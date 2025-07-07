@@ -153,6 +153,7 @@ jobs:
       - name: Build and Push Frontend
         env:
           VERSION: ${{ steps.semver.outputs.new_tag }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [[ -z "$VERSION" ]]; then
             echo "ERROR: Version not determined!"
