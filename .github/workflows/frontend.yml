@@ -55,27 +55,27 @@ jobs:
           fi
 
   determine-version:
-  runs-on: ubuntu-latest
-  needs: [check-dev-merge]
-  if: |
-    needs.check-dev-merge.outputs.is_dev_merge == 'true'
-  outputs:
-    semver: ${{ steps.semver.outputs.version }}
-  steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
+    runs-on: ubuntu-latest
+    needs: [check-dev-merge]
+    if: |
+      needs.check-dev-merge.outputs.is_dev_merge == 'true'
+    outputs:
+      semver: ${{ steps.semver.outputs.version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-    # CHANGED: Added explicit version validation
-    - name: Verify previous tags
-      id: verify-tags
-      run: |
-        if ! git describe --tags --abbrev=0; then
-          echo "No existing tags found, starting from v1.0.0"
-          echo "version=v1.0.0" >> $GITHUB_OUTPUT
-          exit 0
-        fi
+      # CHANGED: Added explicit version validation
+      - name: Verify previous tags
+        id: verify-tags
+        run: |
+          if ! git describe --tags --abbrev=0; then
+            echo "No existing tags found, starting from v1.0.0"
+            echo "version=v1.0.0" >> $GITHUB_OUTPUT
+            exit 0
+          fi
 
     # CHANGED: Pinned to exact version v6.0
     - name: Get Semantic Version
