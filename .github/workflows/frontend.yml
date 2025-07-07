@@ -56,7 +56,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: [check-frontend-change, check-dev-merge]
     if: |
-      github.ref == 'refs/heads/main' &&
       needs.check-frontend-change.outputs.changed == 'true' &&
       needs.check-dev-merge.outputs.is_dev_merge == 'true'
     outputs:
@@ -81,8 +80,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: check-frontend-change
     if: |
-      needs.check-frontend-change.outputs.changed == 'true' && 
-      (github.event_name == 'pull_request' )
+      needs.check-frontend-change.outputs.changed == 'true'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
