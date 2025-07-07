@@ -179,7 +179,6 @@ jobs:
         env:
           VERSION: ${{ needs.determine-version.outputs.semver }}
         run: |
-          # ADDED: Version validation
           if [[ -z "$VERSION" ]]; then
             echo "ERROR: Version not determined!"
             exit 1
@@ -187,11 +186,10 @@ jobs:
 
           echo "Building version: $VERSION"
           
-          # CHANGED: Removed nested conditionals
           docker build \
             --build-arg VITE_CLERK_PUBLISHABLE_KEY=${{ secrets.VITE_CLERK_PUBLISHABLE_KEY }} \
             -t $DOCKERHUB_USER/frontend:latest \
-            -t $DOCKERHUB_USER/frontend:${VERSION#v} \  # REMOVED 'v' prefix
+            -t $DOCKERHUB_USER/frontend:${VERSION#v} \
             ./code/frontend
           
           docker push $DOCKERHUB_USER/frontend:latest
