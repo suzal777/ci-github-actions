@@ -54,7 +54,7 @@ jobs:
 
   determine-version:
     runs-on: ubuntu-latest
-    needs: [check-frontend-change, check-dev-merge]
+    needs: [check-dev-merge]
     if: |
       needs.check-frontend-change.outputs.changed == 'true' &&
       needs.check-dev-merge.outputs.is_dev_merge == 'true'
