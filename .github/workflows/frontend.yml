@@ -10,6 +10,9 @@ on:
     paths:
       - 'code/frontend/src/**'
 
+permissions:
+  contents: write      
+
 env:
   DOCKERHUB_USER: suzal777
 
@@ -69,7 +72,6 @@ jobs:
         uses: mathieudutour/github-tag-action@v6.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          default_version: "1.0.0"
           release_branches: "main"
           tag_prefix: "v"
 
