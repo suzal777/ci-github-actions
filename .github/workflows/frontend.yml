@@ -177,6 +177,8 @@ jobs:
                 --title "Release v$VERSION" \
                 --notes "Production release" \
                 --target main
+            fi
+          fi      
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
