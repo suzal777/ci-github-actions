@@ -85,6 +85,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           release_branches: "main"
           tag_prefix: "v"
+          default_version: "1.0.0"
 
   pr-checks:
     name: PR Research Checks
