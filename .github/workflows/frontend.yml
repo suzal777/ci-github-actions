@@ -136,7 +136,7 @@ jobs:
               -t $DOCKERHUB_USER/frontend:$BRANCH_NAME-$SHORT_SHA \
               ./code/frontend
             docker push $DOCKERHUB_USER/frontend:$BRANCH_NAME-$SHORT_SHA
-          fi
+            
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
