@@ -114,7 +114,8 @@ jobs:
     needs: [check-frontend-change, pr-checks]
     if: |
       needs.check-frontend-change.outputs.changed == 'true' &&
-      (github.event_name != 'pull_request' || needs.pr-checks.result == 'success')
+      (github.event_name != 'pull_request' || needs.pr-checks.result == 'success') &&
+      github.ref != 'refs/heads/main' 
     environment:
       name: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
     steps:
@@ -144,11 +145,10 @@ jobs:
 
   build-and-push-frontend-main:
     runs-on: [frontend]
-    needs: [check-frontend-change, pr-checks, check-dev-merge, determine-version]
+    needs: [pr-checks, check-dev-merge, determine-version]
     if: |
       needs.check-frontend-change.outputs.changed == 'true' &&
-      (github.event_name != 'pull_request' || needs.pr-checks.result == 'success') &&
-      github.ref != 'refs/heads/main'  
+      (github.event_name != 'pull_request' || needs.pr-checks.result == 'success') 
     environment:
       name: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
     steps:
