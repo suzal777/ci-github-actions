@@ -111,9 +111,9 @@ jobs:
           yarn install --frozen-lockfile
           yarn lint
 
-  build-and-push-frontend:
+  build-and-push-frontend-dev:
     runs-on: [frontend]
-    needs: [check-frontend-change, pr-checks, check-dev-merge, determine-version]
+    needs: [check-frontend-change, pr-checks]
     if: |
       needs.check-frontend-change.outputs.changed == 'true' &&
       (github.event_name != 'pull_request' || needs.pr-checks.result == 'success')
@@ -131,6 +131,36 @@ jobs:
           SHORT_SHA=$(echo $GITHUB_SHA | cut -c1-7)
           BRANCH_NAME=$(echo $GITHUB_REF_NAME | tr '/' '-')
           
+            docker build \
+              --build-arg VITE_CLERK_PUBLISHABLE_KEY=${{ secrets.VITE_CLERK_PUBLISHABLE_KEY }} \
+              -t $DOCKERHUB_USER/frontend:$BRANCH_NAME-$SHORT_SHA \
+              ./code/frontend
+            docker push $DOCKERHUB_USER/frontend:$BRANCH_NAME-$SHORT_SHA
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker logout
+        if: always()
+        run: docker logout
+
+  build-and-push-frontend-main:
+    runs-on: [frontend]
+    needs: [check-frontend-change, pr-checks, check-dev-merge, determine-version]
+    if: |
+      needs.check-frontend-change.outputs.changed == 'true' &&
+      (github.event_name != 'pull_request' || needs.pr-checks.result == 'success')
+    environment:
+      name: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Docker login
+        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+      - name: Build and Push Frontend
+        run: |
           if [[ "$GITHUB_REF_NAME" == "main" ]]; then
             if [[ "${{ needs.check-dev-merge.outputs.is_dev_merge }}" == "true" ]]; then
               # Case 1: Dev→Main merge (SemVer release)
@@ -148,17 +178,9 @@ jobs:
                 --title "Release v$VERSION" \
                 --notes "Production release" \
                 --target main
-          else
-            # Case 3: Dev branch (original behavior)
-            docker build \
-              --build-arg VITE_CLERK_PUBLISHABLE_KEY=${{ secrets.VITE_CLERK_PUBLISHABLE_KEY }} \
-              -t $DOCKERHUB_USER/frontend:$BRANCH_NAME-$SHORT_SHA \
-              ./code/frontend
-            docker push $DOCKERHUB_USER/frontend:$BRANCH_NAME-$SHORT_SHA
-          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Docker logout
         if: always()
-        run: docker logout
+        run: docker logout      
