@@ -155,52 +155,52 @@ jobs:
         run: docker logout
 
   build-and-push-frontend-main:
-  runs-on: [frontend]
-  needs: [pr-checks, check-dev-merge, determine-version]
-  if: |
-    github.ref == 'refs/heads/main' &&
-    needs.check-dev-merge.outputs.is_dev_merge == 'true'
-  environment:
-    name: production
-  steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+    runs-on: [frontend]
+    needs: [pr-checks, check-dev-merge, determine-version]
+    if: |
+      github.ref == 'refs/heads/main' &&
+      needs.check-dev-merge.outputs.is_dev_merge == 'true'
+    environment:
+      name: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Docker login
-      run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+      - name: Docker login
+        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
-    # CHANGED: Simplified and secured version handling
-    - name: Build and Push Frontend
-      env:
-        VERSION: ${{ needs.determine-version.outputs.semver }}
-      run: |
-        # ADDED: Version validation
-        if [[ -z "$VERSION" ]]; then
-          echo "ERROR: Version not determined!"
-          exit 1
-        fi
+      # CHANGED: Simplified and secured version handling
+      - name: Build and Push Frontend
+        env:
+          VERSION: ${{ needs.determine-version.outputs.semver }}
+        run: |
+          # ADDED: Version validation
+          if [[ -z "$VERSION" ]]; then
+            echo "ERROR: Version not determined!"
+            exit 1
+          fi
 
-        echo "Building version: $VERSION"
-        
-        # CHANGED: Removed nested conditionals
-        docker build \
-          --build-arg VITE_CLERK_PUBLISHABLE_KEY=${{ secrets.VITE_CLERK_PUBLISHABLE_KEY }} \
-          -t $DOCKERHUB_USER/frontend:latest \
-          -t $DOCKERHUB_USER/frontend:${VERSION#v} \  # REMOVED 'v' prefix
-          ./code/frontend
-        
-        docker push $DOCKERHUB_USER/frontend:latest
-        docker push $DOCKERHUB_USER/frontend:${VERSION#v}
+          echo "Building version: $VERSION"
+          
+          # CHANGED: Removed nested conditionals
+          docker build \
+            --build-arg VITE_CLERK_PUBLISHABLE_KEY=${{ secrets.VITE_CLERK_PUBLISHABLE_KEY }} \
+            -t $DOCKERHUB_USER/frontend:latest \
+            -t $DOCKERHUB_USER/frontend:${VERSION#v} \  # REMOVED 'v' prefix
+            ./code/frontend
+          
+          docker push $DOCKERHUB_USER/frontend:latest
+          docker push $DOCKERHUB_USER/frontend:${VERSION#v}
 
-        # CHANGED: Added error handling for release creation
-        if ! gh release create $VERSION \
-          --title "Release $VERSION" \
-          --notes "Production release" \
-          --target main; then
-          echo "Failed to create release"
-          exit 1
-        fi
+          # CHANGED: Added error handling for release creation
+          if ! gh release create $VERSION \
+            --title "Release $VERSION" \
+            --notes "Production release" \
+            --target main; then
+            echo "Failed to create release"
+            exit 1
+          fi
 
-    - name: Docker logout
-      if: always()
-      run: docker logout     
+      - name: Docker logout
+        if: always()
+        run: docker logout     
