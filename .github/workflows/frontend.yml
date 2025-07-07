@@ -45,9 +45,8 @@ jobs:
         id: check-merge
         run: |
           if [ "${{ github.event_name }}" = "push" ] && \
-             [ "$(git log -1 --pretty=format:'%p' | wc -w)" -eq 2 ] && \
-             git merge-base --is-ancestor dev ${{ github.sha }}; then
-            echo "is_dev_merge=true" >> $GITHUB_OUTPUT
+             [ "${{ github.ref }}" = "refs/heads/main" ]; then
+             echo "is_dev_merge=true" >> $GITHUB_OUTPUT
           else
             echo "is_dev_merge=false" >> $GITHUB_OUTPUT
           fi
