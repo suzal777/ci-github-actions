@@ -1,4 +1,4 @@
-name: Backend Build & Push
+name: Backend Build & Push with SemVer
 
 on:
   push:
@@ -14,15 +14,14 @@ on:
 
 env:
   DOCKERHUB_USER: suzal777
-  VERSION: 1.0.0
 
 jobs:
   check-backend-change:
     runs-on: ubuntu-latest
     outputs:
-      changed: ${{ steps.filter.outputs.backend }}
-      backend1_changed: ${{ steps.filter.outputs.backend1 }}
-      backend2_changed: ${{ steps.filter.outputs.backend2 }}
+      changed: ${{ steps.filter.outputs.backend == 'true' }}
+      backend1_changed: ${{ steps.filter.outputs.backend1 == 'true' }}
+      backend2_changed: ${{ steps.filter.outputs.backend2 == 'true' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -42,6 +41,50 @@ jobs:
             backend2:
               - 'code/backend2/**'
 
+  check-dev-merge:
+    runs-on: ubuntu-latest
+    needs: check-backend-change
+    if: |
+      github.ref == 'refs/heads/main' &&
+      needs.check-backend-change.outputs.changed == 'true'
+    outputs:
+      is_dev_merge: ${{ steps.check-merge.outputs.is_dev_merge }}
+    steps:
+      - name: Check if merge from dev
+        id: check-merge
+        run: |
+          if [ "${{ github.event_name }}" = "push" ] && \
+             [ "$(git log -1 --pretty=format:'%p' | wc -w)" -eq 2 ] && \
+             git merge-base --is-ancestor dev ${{ github.sha }}; then
+            echo "is_dev_merge=true" >> $GITHUB_OUTPUT
+          else
+            echo "is_dev_merge=false" >> $GITHUB_OUTPUT
+          fi
+
+  determine-version:
+    runs-on: ubuntu-latest
+    needs: [check-backend-change, check-dev-merge]
+    if: |
+      github.ref == 'refs/heads/main' &&
+      needs.check-backend-change.outputs.changed == 'true' &&
+      needs.check-dev-merge.outputs.is_dev_merge == 'true'
+    outputs:
+      semver: ${{ steps.semver.outputs.version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get Semantic Version
+        id: semver
+        uses: mathieudutour/github-tag-action@v6
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          default_version: "1.0.0"
+          release_branches: "main"
+          tag_prefix: "v"
+
   pr-checks:
     name: PR Research Checks
     runs-on: ubuntu-latest
@@ -49,7 +92,6 @@ jobs:
     if: |
       needs.check-backend-change.outputs.changed == 'true' &&
       (github.event_name == 'pull_request' && startsWith(github.head_ref, 'feature/'))
-    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -96,16 +138,12 @@ jobs:
 
   build-and-push-backend:
     runs-on: [backend]
-    needs: 
-      - check-backend-change
-      - pr-checks
+    needs: [check-backend-change, pr-checks, check-dev-merge, determine-version]
     if: |
       needs.check-backend-change.outputs.changed == 'true' &&
       (github.event_name != 'pull_request' || needs.pr-checks.result == 'success')
-
     environment:
       name: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -118,28 +156,66 @@ jobs:
         run: |
           SHORT_SHA=$(echo $GITHUB_SHA | cut -c1-7)
           BRANCH_NAME=$(echo $GITHUB_REF_NAME | tr '/' '-')
-          if [[ "$GITHUB_REF_NAME" == "main" ]]; then
-            docker build -t $DOCKERHUB_USER/backend1:latest -t $DOCKERHUB_USER/backend1:v${VERSION} ./code/backend1
+          
+          if [[ "$GITHUB_REF_NAME" == "main" && "${{ needs.check-dev-merge.outputs.is_dev_merge }}" == "true" ]]; then
+            # Case 1: Dev→Main merge (SemVer release)
+            VERSION=${{ needs.determine-version.outputs.semver }}
+            docker build \
+              -t $DOCKERHUB_USER/backend1:latest \
+              -t $DOCKERHUB_USER/backend1:$VERSION \
+              ./code/backend1
             docker push $DOCKERHUB_USER/backend1:latest
-            docker push $DOCKERHUB_USER/backend1:v${VERSION}
+            docker push $DOCKERHUB_USER/backend1:$VERSION
+            
+            # Create GitHub release if first service being built
+            if [[ "${{ needs.check-backend-change.outputs.backend2_changed }}" == "false" ]]; then
+              gh release create v$VERSION \
+                --title "Backend Release v$VERSION" \
+                --notes "Production release from dev merge" \
+                --target main
+            fi
           else
-            docker build -t $DOCKERHUB_USER/backend1:$BRANCH_NAME-$SHORT_SHA ./code/backend1
+            # Case 3: Dev branch (original behavior)
+            docker build \
+              -t $DOCKERHUB_USER/backend1:$BRANCH_NAME-$SHORT_SHA \
+              ./code/backend1
             docker push $DOCKERHUB_USER/backend1:$BRANCH_NAME-$SHORT_SHA
           fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and Push Backend2
         if: needs.check-backend-change.outputs.backend2_changed == 'true'
         run: |
           SHORT_SHA=$(echo $GITHUB_SHA | cut -c1-7)
           BRANCH_NAME=$(echo $GITHUB_REF_NAME | tr '/' '-')
-          if [[ "$GITHUB_REF_NAME" == "main" ]]; then
-            docker build -t $DOCKERHUB_USER/backend2:latest -t $DOCKERHUB_USER/backend2:v${VERSION} ./code/backend2
+          
+          if [[ "$GITHUB_REF_NAME" == "main" && "${{ needs.check-dev-merge.outputs.is_dev_merge }}" == "true" ]]; then
+            # Case 1: Dev→Main merge (SemVer release)
+            VERSION=${{ needs.determine-version.outputs.semver }}
+            docker build \
+              -t $DOCKERHUB_USER/backend2:latest \
+              -t $DOCKERHUB_USER/backend2:$VERSION \
+              ./code/backend2
             docker push $DOCKERHUB_USER/backend2:latest
-            docker push $DOCKERHUB_USER/backend2:v${VERSION}
+            docker push $DOCKERHUB_USER/backend2:$VERSION
+            
+            # Create GitHub release if first service being built
+            if [[ "${{ needs.check-backend-change.outputs.backend1_changed }}" == "false" ]]; then
+              gh release create v$VERSION \
+                --title "Backend Release v$VERSION" \
+                --notes "Production release from dev merge" \
+                --target main
+            fi
           else
-            docker build -t $DOCKERHUB_USER/backend2:$BRANCH_NAME-$SHORT_SHA ./code/backend2
+            # Case 3: Dev branch (original behavior)
+            docker build \
+              -t $DOCKERHUB_USER/backend2:$BRANCH_NAME-$SHORT_SHA \
+              ./code/backend2
             docker push $DOCKERHUB_USER/backend2:$BRANCH_NAME-$SHORT_SHA
           fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Docker logout
         if: always()
