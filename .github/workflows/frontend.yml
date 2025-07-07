@@ -181,8 +181,6 @@ jobs:
                 --target main
             fi
           fi      
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Docker logout
         if: always()
