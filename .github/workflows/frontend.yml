@@ -170,6 +170,11 @@ jobs:
           docker push $DOCKERHUB_USER/frontend:latest
           docker push $DOCKERHUB_USER/frontend:${VERSION#v}
 
+      - name: Install GitHub CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gh
+
           if ! gh release create $VERSION \
             --title "Release $VERSION" \
             --notes "Production release" \
