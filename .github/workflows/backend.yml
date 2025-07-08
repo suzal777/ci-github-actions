@@ -190,7 +190,7 @@ jobs:
           default_bump: "patch"
 
       - name: Build and Push Backend1
-        if: needs.check-backend-change.outputs.backend1_changed == 'true'
+        if: ${{ needs.check-backend-change.outputs.backend1_changed == 'true' || needs.check-backend-change.outputs.changed == 'true' }}
         env:
           VERSION: ${{ steps.semver.outputs.new_tag }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -217,7 +217,7 @@ jobs:
             fi
 
       - name: Build and Push Backend2
-        if: needs.check-backend-change.outputs.backend2_changed == 'true'
+        if: ${{ needs.check-backend-change.outputs.backend2_changed == 'true' || needs.check-backend-change.outputs.changed == 'true' }}
         env:
           VERSION: ${{ steps.semver.outputs.new_tag }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
