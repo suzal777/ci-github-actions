@@ -203,8 +203,9 @@ jobs:
           default_bump: "patch"    
 
       - name: Build and Push Backend1
+        if: needs.check-backend-change.outputs.backend1_changed == 'true'
         env:
-          VERSION: ${{ steps.semver_backend.outputs.new_tag }}
+          VERSION: ${{ steps.semver_backend1.outputs.new_tag }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [[ -z "$VERSION" ]]; then
@@ -222,8 +223,9 @@ jobs:
             docker push $DOCKERHUB_USER/backend1:$VERSION
 
       - name: Build and Push Backend2
+        if: needs.check-backend-change.outputs.backend2_changed == 'true'
         env:
-          VERSION: ${{ steps.semver_backend.outputs.new_tag }}
+          VERSION: ${{ steps.semver_backend2.outputs.new_tag }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [[ -z "$VERSION" ]]; then
