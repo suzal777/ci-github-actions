@@ -115,7 +115,7 @@ jobs:
 
   build-and-push-backend-dev:
     runs-on: [backend]
-    needs: [check-backend-change, pr-checks]
+    needs: [check-backend-change, pr-checks, check-dev-merge]
     if: |
       needs.check-backend-change.outputs.changed == 'true' &&
       (github.event_name != 'pull_request' || needs.pr-checks.result == 'success') &&
@@ -236,6 +236,54 @@ jobs:
                 --title "Backend Release v$VERSION" \
                 --notes "Production release from dev merge" \
                 --target main
+
+      - name: Set up Trivy
+        uses: aquasecurity/setup-trivy@v0.2.0
+        with:
+          version: v0.64.1
+
+      - name: Download Trivy HTML template
+        run: curl -sSL -o html.tpl https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl
+
+      - name: Run Trivy Scan on Backend1 Image
+        env:
+          DOCKERHUB_USER: ${{ secrets.DOCKERHUB_USERNAME }}
+        run: |
+          mkdir -p security/reports/backend1
+          IMAGE="$DOCKERHUB_USER/backend1:latest"
+
+          echo "Scanning image: $IMAGE"
+          trivy image \
+            --format template \
+            --template @html.tpl \
+            -o security/reports/backend1/trivy-latest.html \
+            $IMAGE
+
+      - name: Run Trivy Scan on Backend2 Image
+        env:
+          DOCKERHUB_USER: ${{ secrets.DOCKERHUB_USERNAME }}
+        run: |
+          mkdir -p security/reports/backend2
+          IMAGE="$DOCKERHUB_USER/backend2:latest"
+
+          echo "Scanning image: $IMAGE"
+          trivy image \
+            --format template \
+            --template @html.tpl \
+            -o security/reports/backend2/trivy-latest.html \
+            $IMAGE
+
+      - name: Commit Trivy Reports to Main Branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add security/reports/backend1/trivy-latest.html
+          git add security/reports/backend2/trivy-latest.html
+          git commit -m "chore: add backend1 and backend2 Trivy reports for latest image" || echo "No changes to commit"
+          git push https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }} HEAD:main          
 
       - name: Docker logout
         if: always()
