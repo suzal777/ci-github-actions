@@ -172,7 +172,7 @@ jobs:
           docker push $DOCKERHUB_USER/frontend:${VERSION#v}
 
           if ! gh release create $VERSION \
-            --title "Release $VERSION" \
+            --title "Frontend Image Release $VERSION" \
             --notes "Production release" \
             --target main; then
             echo "Failed to create release"
