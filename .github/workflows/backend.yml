@@ -12,6 +12,9 @@ on:
       - 'code/backend1/src/**'
       - 'code/backend2/src/**'
 
+permissions:
+  contents: write
+
 env:
   DOCKERHUB_USER: suzal777
 
