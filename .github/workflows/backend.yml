@@ -1,4 +1,4 @@
-name: Backend Build & Push with SemVer
+name: Backend Build & Push
 
 on:
   push:
@@ -68,8 +68,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: check-backend-change
     if: |
-      needs.check-backend-change.outputs.changed == 'true' &&
-      (github.event_name == 'pull_request' && startsWith(github.head_ref, 'feature/'))
+      needs.check-backend-change.outputs.changed == 'true'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
