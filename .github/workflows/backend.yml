@@ -162,7 +162,7 @@ jobs:
         run: docker logout
 
   build-and-push-backend-main:
-    runs-on: [backend]
+    runs-on: [ubuntu-latest]
     needs: [pr-checks, check-dev-merge]
     if: |
       github.ref == 'refs/heads/main' &&
