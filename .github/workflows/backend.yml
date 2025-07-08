@@ -179,7 +179,7 @@ jobs:
         run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
       
       - name: Get Semantic Version
-        id: semver
+        id: semver_backend
         uses: mathieudutour/github-tag-action@v6.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -191,7 +191,7 @@ jobs:
 
       - name: Build and Push Backend1
         env:
-          VERSION: ${{ steps.semver.outputs.new_tag }}
+          VERSION: ${{ steps.semver_backend.outputs.new_tag }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [[ -z "$VERSION" ]]; then
@@ -217,7 +217,7 @@ jobs:
 
       - name: Build and Push Backend2
         env:
-          VERSION: ${{ steps.semver.outputs.new_tag }}
+          VERSION: ${{ steps.semver_backend.outputs.new_tag }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [[ -z "$VERSION" ]]; then
