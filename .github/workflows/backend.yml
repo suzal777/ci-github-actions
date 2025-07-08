@@ -162,7 +162,7 @@ jobs:
         run: docker logout
 
   build-and-push-backend-main:
-    runs-on: [backend]
+    runs-on: [ubuntu-latest]
     needs: [pr-checks, check-dev-merge]
     if: |
       github.ref == 'refs/heads/main' &&
@@ -207,11 +207,6 @@ jobs:
               ./code/backend1
             docker push $DOCKERHUB_USER/backend1:latest
             docker push $DOCKERHUB_USER/backend1:$VERSION
-            
-              gh release create v$VERSION \
-                --title "Backend Release v$VERSION" \
-                --notes "Production release from dev merge" \
-                --target main
 
       - name: Build and Push Backend2
         env:
