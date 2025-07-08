@@ -222,12 +222,15 @@ jobs:
             docker push $DOCKERHUB_USER/backend1:latest
             docker push $DOCKERHUB_USER/backend1:$VERSION
 
-          if [[ "${{ needs.check-backend-change.outputs.backend2_changed }}" == "false" || "${{ needs.check-backend-change.outputs.changed }}" == 'true']]; then
-              gh release create v$VERSION \
-                --title "Backend1 Release v$VERSION" \
-                --notes "Production release from dev merge" \
-                --target main
-            fi  
+          BACKEND2_CHANGED="${{ needs.check-backend-change.outputs.backend2_changed }}"
+          CHANGED="${{ needs.check-backend-change.outputs.changed }}"
+
+          if [[ "$BACKEND2_CHANGED" == "false" || "$CHANGED" == "true" ]]; then
+            gh release create v$VERSION \
+              --title "Backend1 Release v$VERSION" \
+              --notes "Production release from dev merge" \
+              --target main
+          fi  
 
       - name: Build and Push Backend2
         if: needs.check-backend-change.outputs.backend2_changed == 'true'
@@ -249,12 +252,15 @@ jobs:
             docker push $DOCKERHUB_USER/backend2:latest
             docker push $DOCKERHUB_USER/backend2:$VERSION
             
-          if [[ "${{ needs.check-backend-change.outputs.backend1_changed }}" == "false" || "${{ needs.check-backend-change.outputs.changed }}" == 'true']]; then
-              gh release create v$VERSION \
-                --title "Backend2 Release v$VERSION" \
-                --notes "Production release from dev merge" \
-                --target main
-            fi  
+          BACKEND1_CHANGED="${{ needs.check-backend-change.outputs.backend1_changed }}"
+          CHANGED="${{ needs.check-backend-change.outputs.changed }}"
+
+          if [[ "$BACKEND1_CHANGED" == "false" || "$CHANGED" == "true" ]]; then
+            gh release create v$VERSION \
+              --title "Backend2 Release v$VERSION" \
+              --notes "Production release from dev merge" \
+              --target main
+          fi 
 
       - name: Set up Trivy
         uses: aquasecurity/setup-trivy@v0.2.0
