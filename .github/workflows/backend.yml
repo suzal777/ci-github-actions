@@ -208,12 +208,10 @@ jobs:
             docker push $DOCKERHUB_USER/backend1:latest
             docker push $DOCKERHUB_USER/backend1:$VERSION
             
-            if [[ "${{ needs.check-backend-change.outputs.backend2_changed }}" == "false" ]]; then
               gh release create v$VERSION \
                 --title "Backend Release v$VERSION" \
                 --notes "Production release from dev merge" \
                 --target main
-            fi
 
       - name: Build and Push Backend2
         env:
@@ -234,12 +232,10 @@ jobs:
             docker push $DOCKERHUB_USER/backend2:latest
             docker push $DOCKERHUB_USER/backend2:$VERSION
             
-            if [[ "${{ needs.check-backend-change.outputs.backend1_changed }}" == "false" ]]; then
               gh release create v$VERSION \
                 --title "Backend Release v$VERSION" \
                 --notes "Production release from dev merge" \
                 --target main
-            fi
 
       - name: Docker logout
         if: always()

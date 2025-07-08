@@ -183,6 +183,9 @@ jobs:
         run: |
           curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
 
+      - name: Download Trivy HTML template
+        run: curl -sSL -o html.tpl https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/html.tpl    
+
       - name: Run Trivy Scan on Frontend Image
         env:
           VERSION: ${{ steps.semver_frontend.outputs.new_tag }}
