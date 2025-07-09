@@ -312,8 +312,6 @@ jobs:
 
           git checkout gh-pages
 
-          git pull --rebase origin gh-pages
-
           mkdir -p backend1
           mkdir -p backend2
 
