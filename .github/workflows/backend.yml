@@ -309,11 +309,14 @@ jobs:
 
           git checkout gh-pages
 
+          mkdir -p security/reports/backend1
+          mkdir -p security/reports/backend2
+
           cp ../security/reports/backend1/trivy-latest.html security/reports/backend1/trivy-latest.html
           cp ../security/reports/backend2/trivy-latest.html security/reports/backend2/trivy-latest.html
 
-          git add security/reports/backend1/trivy-latest.html 
-          git add security/reports/backend2/trivy-latest.html
+          git add -f security/reports/backend1/trivy-latest.html 
+          git add -f security/reports/backend2/trivy-latest.html
           git commit -m "chore: add backend1 and backend2 Trivy reports for latest image" || echo "No changes to commit"
           git push https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }} HEAD:gh-pages  
 
