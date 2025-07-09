@@ -9,7 +9,7 @@ import { CssBaseline, ThemeProvider, createTheme, Box, Typography, Button } from
 const clerkPublishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 const basename = import.meta.env.VITE_BASE_PATH || "/";
 const theme = createTheme();
-
+ 
 function App() {
   return (
     <ClerkProvider publishableKey={clerkPublishableKey}>
