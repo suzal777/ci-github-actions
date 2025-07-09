@@ -231,9 +231,11 @@ jobs:
 
           git checkout gh-pages
 
+          mkdir -p security/reports/frontend
+
           cp ../security/reports/frontend/trivy-latest.html security/reports/frontend/trivy-latest.html
 
-          git add security/reports/frontend/trivy-latest.html
+          git add -f security/reports/frontend/trivy-latest.html
           git commit -m "chore: update frontend Trivy report" || echo "No changes to commit"
           git push https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }} HEAD:gh-pages
 
