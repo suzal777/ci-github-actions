@@ -252,7 +252,8 @@ jobs:
           publish_dir: ./code/frontend/dist/
           publish_branch: gh-pages
           user_name: github-actions[bot]
-          user_email: 41898282+github-actions[bot]@users.noreply.github.com    
+          user_email: 41898282+github-actions[bot]@users.noreply.github.com 
+          keep_files: true   
 
       - name: Docker logout
         if: always()
