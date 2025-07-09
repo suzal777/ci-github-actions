@@ -227,13 +227,15 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
+          cp security/reports/frontend/trivy-latest.html /tmp/frontend-trivy-latest.html
+
           git stash push --include-untracked -m "stash before switching to gh-pages"
 
           git checkout gh-pages
 
           mkdir -p security/reports/frontend
 
-          cp ../security/reports/frontend/trivy-latest.html security/reports/frontend/trivy-latest.html
+          cp /tmp/frontend-trivy-latest.html security/reports/frontend/trivy-latest.html
 
           git add -f security/reports/frontend/trivy-latest.html
           git commit -m "chore: update frontend Trivy report" || echo "No changes to commit"
@@ -241,7 +243,7 @@ jobs:
 
           git checkout -
 
-          git stash pop || echo "No stash to pop"   
+          git stash pop || echo "No stash to pop"  
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
