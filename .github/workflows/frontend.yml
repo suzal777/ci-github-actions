@@ -145,6 +145,10 @@ jobs:
         working-directory: ./code/frontend
         run: yarn install --frozen-lockfile  
 
+      - name: Install @types/node
+        working-directory: ./code/frontend
+        run: yarn add -D @types/node  
+
       - name: Build frontend with yarn
         working-directory: ./code/frontend
         env:
