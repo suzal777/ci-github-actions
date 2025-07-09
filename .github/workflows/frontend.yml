@@ -142,17 +142,17 @@ jobs:
           node-version: 18    
 
       - name: Install dependencies
-        working-directory: ./code/frontend
+        working-directory: ./code/frontend/
         run: yarn install --frozen-lockfile  
 
       - name: Install @types/node
-        working-directory: ./code/frontend
+        working-directory: ./code/frontend/
         run: yarn add -D @types/node  
 
       - name: Build frontend with yarn
-        working-directory: ./code/frontend
+        working-directory: ./code/frontend/
         env:
-          VITE_BASE_PATH: /suzal777/code/frontend/
+          VITE_BASE_PATH: /ci-github-actions/code/frontend/
         run: yarn build    
 
       - name: Docker login
@@ -235,7 +235,7 @@ jobs:
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./code/frontend/dist
+          publish_dir: ./code/frontend/dist/
           publish_branch: gh-pages
           user_name: github-actions[bot]
           user_email: 41898282+github-actions[bot]@users.noreply.github.com    
