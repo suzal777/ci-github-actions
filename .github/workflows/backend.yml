@@ -298,7 +298,7 @@ jobs:
             -o security/reports/backend2/trivy-latest.html \
             $IMAGE
 
-      - name: Commit Trivy Reports to Main Branch
+      - name: Commit Trivy Reports to gh-pages Branch
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -312,19 +312,19 @@ jobs:
 
           git checkout gh-pages
 
-          mkdir -p security/reports/backend1
-          mkdir -p security/reports/backend2
+          mkdir -p backend1
+          mkdir -p backend2
 
-          cp /tmp/backend1-trivy-latest.html security/reports/backend1/trivy-latest.html
-          cp /tmp/backend2-trivy-latest.html security/reports/backend2/trivy-latest.html
+          cp /tmp/backend1-trivy-latest.html backend1/trivy-latest.html
+          cp /tmp/backend2-trivy-latest.html backend2/trivy-latest.html
 
-          git add -f security/reports/backend1/trivy-latest.html security/reports/backend2/trivy-latest.html
+          git add -f backend1/trivy-latest.html backend2/trivy-latest.html
           git commit -m "chore: update backend1 and backend2 Trivy reports" || echo "No changes to commit"
           git push https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }} HEAD:gh-pages
 
           git checkout -
 
-          git stash pop || echo "No stash to pop"       
+          git stash pop || echo "No stash to pop"      
 
       - name: Docker logout
         if: always()
