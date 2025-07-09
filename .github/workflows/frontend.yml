@@ -152,7 +152,7 @@ jobs:
       - name: Build frontend with yarn
         working-directory: ./code/frontend/
         env:
-          VITE_BASE_PATH: /ci-github-actions/code/frontend/
+          VITE_BASE_PATH: /ci-github-action/
         run: yarn build    
 
       - name: Commit built dist folder to main branch
