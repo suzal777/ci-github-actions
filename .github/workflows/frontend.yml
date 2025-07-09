@@ -143,7 +143,13 @@ jobs:
 
       - name: Install dependencies
         working-directory: ./code/frontend
-        run: yarn install --frozen-lockfile    
+        run: yarn install --frozen-lockfile  
+
+      - name: Build frontend with yarn
+        working-directory: ./code/frontend
+        env:
+          VITE_BASE_PATH: /suzal777/code/frontend/
+        run: yarn build    
 
       - name: Docker login
         run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
