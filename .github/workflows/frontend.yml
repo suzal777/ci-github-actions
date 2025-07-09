@@ -220,7 +220,7 @@ jobs:
             -o security/reports/frontend/trivy-latest.html \
             $IMAGE
 
-      - name: Commit Trivy Report to Main Branch
+      - name: Commit Trivy Report to gh-pages Branch
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -233,17 +233,17 @@ jobs:
 
           git checkout gh-pages
 
-          mkdir -p security/reports/frontend
+          mkdir -p frontend
 
-          cp /tmp/frontend-trivy-latest.html security/reports/frontend/trivy-latest.html
+          cp /tmp/frontend-trivy-latest.html frontend/trivy-latest.html
 
-          git add -f security/reports/frontend/trivy-latest.html
+          git add -f frontend/trivy-latest.html
           git commit -m "chore: update frontend Trivy report" || echo "No changes to commit"
           git push https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }} HEAD:gh-pages
 
           git checkout -
 
-          git stash pop || echo "No stash to pop"  
+          git stash pop || echo "No stash to pop" 
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
