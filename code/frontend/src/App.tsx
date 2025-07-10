@@ -7,7 +7,7 @@ import { ClerkProvider, SignedIn, SignedOut, SignInButton } from "@clerk/clerk-r
 import { CssBaseline, ThemeProvider, createTheme, Box, Typography, Button } from "@mui/material";
 
 const clerkPublishableKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
-const basename = "/ci-github-actions/";
+const basename = import.meta.env.VITE_BASE_PATH || "/";
 const theme = createTheme();
  
 function App() {

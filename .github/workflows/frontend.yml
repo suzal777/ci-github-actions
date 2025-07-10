@@ -152,6 +152,7 @@ jobs:
       - name: Build frontend with yarn
         working-directory: ./code/frontend/
         env:
+          VITE_BASE_PATH: /ci-github-actions/
           VITE_CLERK_PUBLISHABLE_KEY: pk_test_bGl2aW5nLWVsZi05NC5jbGVyay5hY2NvdW50cy5kZXYk
         run: yarn build    
 

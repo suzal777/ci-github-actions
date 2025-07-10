@@ -9,6 +9,7 @@ import { errorHandler } from './middlewares/errorHandler';
 // Clerk imports
 import { ClerkExpressWithAuth } from '@clerk/clerk-sdk-node';
 import { requestLogger } from './middlewares/logs_midddleware';
+import { http } from 'winston';
 
 dotenv.config();
 
@@ -17,7 +18,12 @@ const app: Application = express();
 app.use(requestLogger);
 
 app.use(express.json());
-app.use(cors());
+app.use(cors(
+    {
+        origin: "http://3.82.236.69",
+        credentials: true // Allow cookies to be sent
+    }
+));
 
 // Clerk middleware: attaches req.auth to all requests
 app.use(ClerkExpressWithAuth());
