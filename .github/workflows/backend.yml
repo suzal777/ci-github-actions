@@ -331,11 +331,11 @@ jobs:
         run: docker logout      
 
   deploy-backend1:
+    runs-on: [ubuntu-latest]
+    needs: [build-and-push-backend-main, check-backend-change]
+    if: needs.check-backend-change.outputs.backend1_changed == 'true'
     steps:
       - name: deploy-backend1
-        runs-on: [ubuntu-latest]
-        needs: [build-and-push-backend-main, check-backend-change]
-        if: needs.check-backend-change.outputs.backend1_changed == 'true'
         run : |   
             echo "${{ secrets.SSH_PRIVATE_KEY }}" > key
             chmod 600 key
@@ -346,11 +346,11 @@ jobs:
             docker compose --profile backend1 up -d
 
   deploy-backend2:
+    runs-on: [ubuntu-latest]
+    needs: [build-and-push-backend-main, check-backend-change]
+    if: needs.check-backend-change.outputs.backend2_changed == 'true'
     steps:
       - name: deploy-backend2
-        runs-on: [ubuntu-latest]
-        needs: [build-and-push-backend-main, check-backend-change]
-        if: needs.check-backend-change.outputs.backend2_changed == 'true'
         run : |   
             echo "${{ secrets.SSH_PRIVATE_KEY }}" > key
             chmod 600 key
