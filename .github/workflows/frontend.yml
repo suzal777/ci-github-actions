@@ -267,7 +267,7 @@ jobs:
       - name: deploy-frontend
         run : |   
             echo "${{ secrets.SSH_PRIVATE_KEY }}" > key
-            ssh -i key -o StrictHostKeyChecking=no ${{ secrets.USER_NAME }}@${{ secrets.SSH_HOST }} 
+            ssh -i key -o StrictHostKeyChecking=no ${{ secrets.SSH_USER_NAME }}@${{ secrets.SSH_HOST }} 
             cd /home/ec2-user/production
             docker compose pull frontend
             docker compose --profile frontend up -d
