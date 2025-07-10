@@ -180,7 +180,7 @@ jobs:
       
       - name: Get Semantic Version Backend1
         if: needs.check-backend-change.outputs.backend1_changed == 'true'
-        id: semver_backend1
+        id: semver_backend_1
         uses: mathieudutour/github-tag-action@v6.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -192,7 +192,7 @@ jobs:
 
       - name: Get Semantic Version Backend2
         if: needs.check-backend-change.outputs.backend2_changed == 'true'
-        id: semver_backend2
+        id: semver_backend_2
         uses: mathieudutour/github-tag-action@v6.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -340,10 +340,11 @@ jobs:
             echo "${{ secrets.SSH_PRIVATE_KEY }}" > key
             chmod 600 key
 
-            ssh -i key -o StrictHostKeyChecking=no ${{ secrets.SSH_USER_NAME }}@${{ secrets.SSH_HOST }} 
-            cd /home/ec2-user/production
-            docker compose pull backend1
-            docker compose --profile backend1 up -d
+            ssh -i key -o StrictHostKeyChecking=no ${{ secrets.SSH_USER_NAME }}@${{ secrets.SSH_HOST }} << 'EOF'
+              cd /home/ec2-user/production
+              docker compose pull backend1
+              docker compose --profile backend1 up -d
+            EOF
 
   deploy-backend2:
     runs-on: [ubuntu-latest]
@@ -354,7 +355,8 @@ jobs:
         run : |   
             echo "${{ secrets.SSH_PRIVATE_KEY }}" > key
             chmod 600 key
-            ssh -i key -o StrictHostKeyChecking=no ${{ secrets.SSH_USER_NAME }}@${{ secrets.SSH_HOST }} 
-            cd /home/ec2-user/production
-            docker compose pull backend2
-            docker compose --profile backend2 up -d            
+            ssh -i key -o StrictHostKeyChecking=no ${{ secrets.SSH_USER_NAME }}@${{ secrets.SSH_HOST }} << 'EOF'
+              cd /home/ec2-user/production
+              docker compose pull backend2
+              docker compose --profile backend2 up -d  
+            EOF          

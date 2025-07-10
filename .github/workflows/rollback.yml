@@ -1,0 +1,40 @@
+name: rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Select backend to rollback"
+        required: true
+        default: "backend1"
+        type: choice
+        options:
+          - backend1
+          - backend2
+
+jobs:
+  rollback_db:
+    runs-on: [ubuntu-latest]
+
+    steps:
+      - name: rollback backend1
+        if: ${{ github.event.inputs.target == 'backend1' }}
+        run: |
+            echo "${{ secrets.SSH_PRIVATE_KEY }}" > key
+            chmod 600 key
+
+            ssh -i key -o StrictHostKeyChecking=no ${{ secrets.SSH_USER_NAME }}@${{ secrets.SSH_HOST }} << 'EOF'
+              cd /home/ec2-user/production
+              docker compose exec backend1 yarn rollback
+            EOF
+
+      - name: rollback backend2
+        if: ${{ github.event.inputs.target == 'backend2' }}
+        run: |
+            echo "${{ secrets.SSH_PRIVATE_KEY }}" > key
+            chmod 600 key
+
+            ssh -i key -o StrictHostKeyChecking=no ${{ secrets.SSH_USER_NAME }}@${{ secrets.SSH_HOST }} << 'EOF'
+              cd /home/ec2-user/production
+              docker compose exec backend2 yarn rollback
+            EOF
