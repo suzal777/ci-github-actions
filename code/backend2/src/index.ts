@@ -17,7 +17,12 @@ app.get('/health', (req, res) => {
     res.status(200).json({ status: 'ok' });
 });
 
-app.use(cors());
+app.use(cors(
+     {
+        origin: "http://3.82.236.69",
+        credentials: true // Allow cookies to be sent
+    }
+));
 
 app.use(appRouter);
 
