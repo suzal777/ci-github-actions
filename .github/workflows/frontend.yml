@@ -259,4 +259,13 @@ jobs:
       - name: Docker logout
         if: always()
         run: docker logout
-   
+
+  deploy-frontend:
+    runs-on: [ubuntu-latest]
+    needs: [build-and-push-frontend-main]
+    run : |   
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > key
+        ssh -i key -o StrictHostKeyChecking=no ${{ secrets.USER_NAME }}@${{ secrets.SSH_HOST }} 
+        cd /home/ec2-user/production
+        docker compose pull frontend
+        docker compose --profile frontend up -d
