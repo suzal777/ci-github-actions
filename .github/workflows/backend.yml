@@ -202,35 +202,35 @@ jobs:
           dry_run: false
           default_bump: "patch"    
 
-      - name: Build and Push Backend1
-        if: needs.check-backend-change.outputs.backend1_changed == 'true'
-        env:
-          VERSION: ${{ steps.semver_backend1.outputs.new_tag }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          if [[ -z "$VERSION" ]]; then
-            echo "ERROR: Version not determined!"
-            exit 1
-          fi
+      # - name: Build and Push Backend1
+      #   if: needs.check-backend-change.outputs.backend1_changed == 'true'
+      #   env:
+      #     VERSION: ${{ steps.semver_backend1.outputs.new_tag }}
+      #     GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   run: |
+      #     if [[ -z "$VERSION" ]]; then
+      #       echo "ERROR: Version not determined!"
+      #       exit 1
+      #     fi
 
-          echo "Building version: $VERSION"
+      #     echo "Building version: $VERSION"
 
-            docker build \
-              -t $DOCKERHUB_USER/backend1:latest \
-              -t $DOCKERHUB_USER/backend1:$VERSION \
-              ./code/backend1
-            docker push $DOCKERHUB_USER/backend1:latest
-            docker push $DOCKERHUB_USER/backend1:$VERSION
+      #       docker build \
+      #         -t $DOCKERHUB_USER/backend1:latest \
+      #         -t $DOCKERHUB_USER/backend1:$VERSION \
+      #         ./code/backend1
+      #       docker push $DOCKERHUB_USER/backend1:latest
+      #       docker push $DOCKERHUB_USER/backend1:$VERSION
 
-          BACKEND2_CHANGED="${{ needs.check-backend-change.outputs.backend2_changed }}"
-          CHANGED="${{ needs.check-backend-change.outputs.changed }}"
+      #     BACKEND2_CHANGED="${{ needs.check-backend-change.outputs.backend2_changed }}"
+      #     CHANGED="${{ needs.check-backend-change.outputs.changed }}"
 
-          if [[ "$BACKEND2_CHANGED" == "false" || "$CHANGED" == "true" ]]; then
-            gh release create v$VERSION \
-              --title "Backend1 Release v$VERSION" \
-              --notes "Production release from dev merge" \
-              --target main
-          fi  
+      #     if [[ "$BACKEND2_CHANGED" == "false" || "$CHANGED" == "true" ]]; then
+      #       gh release create v$VERSION \
+      #         --title "Backend1 Release v$VERSION" \
+      #         --notes "Production release from dev merge" \
+      #         --target main
+      #     fi  
 
       - name: Build and Push Backend2
         if: needs.check-backend-change.outputs.backend2_changed == 'true'
