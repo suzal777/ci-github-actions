@@ -180,7 +180,7 @@ jobs:
       
       - name: Get Semantic Version Backend1
         if: needs.check-backend-change.outputs.backend1_changed == 'true'
-        id: semver_backend_1.0
+        id: semver_backend_1a
         uses: mathieudutour/github-tag-action@v6.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -192,7 +192,7 @@ jobs:
 
       - name: Get Semantic Version Backend2
         if: needs.check-backend-change.outputs.backend2_changed == 'true'
-        id: semver_backend_2.0
+        id: semver_backend_2a
         uses: mathieudutour/github-tag-action@v6.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -205,7 +205,7 @@ jobs:
       - name: Build and Push Backend1
         if: needs.check-backend-change.outputs.backend1_changed == 'true'
         env:
-          VERSION: ${{ steps.semver_backend_1.0.outputs.new_tag }}
+          VERSION: ${{ steps.semver_backend_1a.outputs.new_tag }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [[ -z "$VERSION" ]]; then
@@ -235,7 +235,7 @@ jobs:
       - name: Build and Push Backend2
         if: needs.check-backend-change.outputs.backend2_changed == 'true'
         env:
-          VERSION: ${{ steps.semver_backend_2.0.outputs.new_tag }}
+          VERSION: ${{ steps.semver_backend_2a.outputs.new_tag }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [[ -z "$VERSION" ]]; then
