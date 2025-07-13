@@ -185,7 +185,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           release_branches: "main"
-          tag_prefix: "backend1-v"
+          tag_prefix: "backend_1-v"
           create_annotated_tag: true
           dry_run: false
           default_bump: "patch"
@@ -197,7 +197,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           release_branches: "main"
-          tag_prefix: "backend2-v"
+          tag_prefix: "backend_2-v"
           create_annotated_tag: true
           dry_run: false
           default_bump: "patch"    
