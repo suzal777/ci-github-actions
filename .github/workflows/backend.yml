@@ -356,7 +356,7 @@ jobs:
             echo "${{ secrets.SSH_PRIVATE_KEY }}" > key
             chmod 600 key
 
-            ssh -i key -o StrictHostKeyChecking=no ${{ secrets.SSH_USER_NAME }}@${{ secrets.SSH_HOST }} << 'EOF'
+            ssh -i key -o StrictHostKeyChecking=no ${{ secrets.SSH_USER_NAME }}@${{ secrets.SSH_HOST }} <<EOF
               cd /home/ec2-user/production
               docker compose pull backend2
               docker compose --profile backend2 up -d  
