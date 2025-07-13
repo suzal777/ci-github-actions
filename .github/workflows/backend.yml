@@ -180,24 +180,24 @@ jobs:
       
       - name: Get Semantic Version Backend1
         if: needs.check-backend-change.outputs.backend1_changed == 'true'
-        id: semver_backend-1
+        id: semver_backend_1.0
         uses: mathieudutour/github-tag-action@v6.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           release_branches: "main"
-          tag_prefix: "backend_1-v"
+          tag_prefix: "backend1-v"
           create_annotated_tag: true
           dry_run: false
           default_bump: "patch"
 
       - name: Get Semantic Version Backend2
         if: needs.check-backend-change.outputs.backend2_changed == 'true'
-        id: semver_backend-2
+        id: semver_backend_2.0
         uses: mathieudutour/github-tag-action@v6.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           release_branches: "main"
-          tag_prefix: "backend_2-v"
+          tag_prefix: "backend2-v"
           create_annotated_tag: true
           dry_run: false
           default_bump: "patch"    
@@ -205,7 +205,7 @@ jobs:
       - name: Build and Push Backend1
         if: needs.check-backend-change.outputs.backend1_changed == 'true'
         env:
-          VERSION: ${{ steps.semver_backend-1.outputs.new_tag }}
+          VERSION: ${{ steps.semver_backend_1.0.outputs.new_tag }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [[ -z "$VERSION" ]]; then
@@ -226,8 +226,8 @@ jobs:
           CHANGED="${{ needs.check-backend-change.outputs.changed }}"
 
           if [[ "$BACKEND2_CHANGED" == "false" || "$CHANGED" == "true" ]]; then
-            gh release create v$VERSION \
-              --title "Backend1 Release v$VERSION" \
+            gh release create $VERSION \
+              --title "Backend1 Release $VERSION" \
               --notes "Production release from dev merge" \
               --target main
           fi  
@@ -235,7 +235,7 @@ jobs:
       - name: Build and Push Backend2
         if: needs.check-backend-change.outputs.backend2_changed == 'true'
         env:
-          VERSION: ${{ steps.semver_backend-2.outputs.new_tag }}
+          VERSION: ${{ steps.semver_backend_2.0.outputs.new_tag }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [[ -z "$VERSION" ]]; then
@@ -256,8 +256,8 @@ jobs:
           CHANGED="${{ needs.check-backend-change.outputs.changed }}"
 
           if [[ "$BACKEND1_CHANGED" == "false" || "$CHANGED" == "true" ]]; then
-            gh release create v$VERSION \
-              --title "Backend2 Release v$VERSION" \
+            gh release create $VERSION \
+              --title "Backend2 Release $VERSION" \
               --notes "Production release from dev merge" \
               --target main
           fi 
@@ -355,7 +355,7 @@ jobs:
         run : |   
             echo "${{ secrets.SSH_PRIVATE_KEY }}" > key
             chmod 600 key
-            
+
             ssh -i key -o StrictHostKeyChecking=no ${{ secrets.SSH_USER_NAME }}@${{ secrets.SSH_HOST }} << 'EOF'
               cd /home/ec2-user/production
               docker compose pull backend2
