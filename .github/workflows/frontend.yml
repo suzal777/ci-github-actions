@@ -234,6 +234,8 @@ jobs:
 
           git checkout gh-pages
 
+          git pull origin gh-pages --rebase
+
           mkdir -p frontend
 
           cp /tmp/frontend-trivy-latest.html frontend/trivy-latest.html
