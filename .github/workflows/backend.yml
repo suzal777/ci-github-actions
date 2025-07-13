@@ -185,7 +185,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           release_branches: "main"
-          tag_prefix: "backend-A-v"
+          tag_prefix: "b1-v"
           create_annotated_tag: true
           dry_run: false
           default_bump: "patch"
@@ -197,7 +197,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           release_branches: "main"
-          tag_prefix: "backend-B-v"
+          tag_prefix: "b2-v"
           create_annotated_tag: true
           dry_run: false
           default_bump: "patch"    
@@ -356,8 +356,5 @@ jobs:
             echo "${{ secrets.SSH_PRIVATE_KEY }}" > key
             chmod 600 key
 
-            ssh -i key -o StrictHostKeyChecking=no ${{ secrets.SSH_USER_NAME }}@${{ secrets.SSH_HOST }} <<EOF
-              cd /home/ec2-user/production
-              docker compose pull backend2
-              docker compose --profile backend2 up -d  
-            EOF          
+            ssh -i key -o StrictHostKeyChecking=no ${{ secrets.SSH_USER_NAME }}@${{ secrets.SSH_HOST }} \
+            "cd /home/ec2-user/production && docker compose pull backend2 && docker compose --profile backend2 up -d"         
