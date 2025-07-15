@@ -118,8 +118,7 @@ jobs:
     needs: [check-backend-change, pr-checks, check-dev-merge]
     if: |
       needs.check-backend-change.outputs.changed == 'true' &&
-      (github.event_name != 'pull_request' || needs.pr-checks.result == 'success') &&
-      github.ref != 'refs/heads/main'
+      (github.event_name != 'pull_request' || needs.pr-checks.result == 'success')
     environment:
       name: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
     steps:

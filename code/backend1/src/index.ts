@@ -20,7 +20,7 @@ app.use(requestLogger);
 app.use(express.json());
 app.use(cors(
     {
-        origin: "http://3.82.236.69",
+        origin: "http://3.81.83.155",
         credentials: true // Allow cookies to be sent
     }
 ));
@@ -43,4 +43,4 @@ app.listen(PORT, () => {
  // console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`)
 });
 
-// test againnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn
+// test againnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn
