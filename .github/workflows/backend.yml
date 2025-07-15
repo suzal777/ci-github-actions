@@ -118,7 +118,8 @@ jobs:
     needs: [check-backend-change, pr-checks, check-dev-merge]
     if: |
       needs.check-backend-change.outputs.changed == 'true' &&
-      (github.event_name != 'pull_request' || needs.pr-checks.result == 'success')
+      (github.event_name != 'pull_request' || needs.pr-checks.result == 'success') &&
+      github.ref == 'refs/heads/main'
     environment:
       name: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
     steps:
@@ -179,7 +180,7 @@ jobs:
       
       - name: Get Semantic Version Backend1
         if: needs.check-backend-change.outputs.backend1_changed == 'true'
-        id: semver_backend_1a
+        id: semver_backend_1b
         uses: mathieudutour/github-tag-action@v6.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -191,7 +192,7 @@ jobs:
 
       - name: Get Semantic Version Backend2
         if: needs.check-backend-change.outputs.backend2_changed == 'true'
-        id: semver_backend_2a
+        id: semver_backend_2b
         uses: mathieudutour/github-tag-action@v6.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
