@@ -185,7 +185,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           release_branches: "main"
-          tag_prefix: "b1-v"
+          tag_prefix: "b1b-v"
           create_annotated_tag: true
           dry_run: false
           default_bump: "patch"
@@ -197,7 +197,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           release_branches: "main"
-          tag_prefix: "b2-v"
+          tag_prefix: "b2b-v"
           create_annotated_tag: true
           dry_run: false
           default_bump: "patch"    
