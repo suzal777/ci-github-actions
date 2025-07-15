@@ -19,7 +19,7 @@ app.get('/health', (req, res) => {
 
 app.use(cors(
      {
-        origin: "http://3.82.236.69",
+        origin: "http://3.81.83.155",
         credentials: true // Allow cookies to be sent
     }
 ));
