@@ -165,7 +165,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           release_branches: "main"
-          tag_prefix: "frontend-v"
+          tag_prefix: "f-v"
           create_annotated_tag: true
           dry_run: false
           default_bump: "patch"
