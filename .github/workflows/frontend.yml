@@ -92,9 +92,9 @@ jobs:
     runs-on: [frontend]
     needs: [check-frontend-change, pr-checks, check-dev-merge]
     if: |
-      needs.check-frontend-change.outputs.changed == 'true' &&
+      needs.check-frontend-change.outputs.changed == 'false' &&
       (github.event_name != 'pull_request' || needs.pr-checks.result == 'success') && 
-      github.ref == 'refs/heads/main'
+      github.ref == 'refs/heads/dev'
     environment:
       name: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
     steps:
@@ -172,7 +172,7 @@ jobs:
 
       - name: Build and Push Frontend
         env:
-          VERSION: v3.7.1
+          VERSION: v3.7.2
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [[ -z "$VERSION" ]]; then
