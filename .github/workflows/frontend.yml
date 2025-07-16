@@ -185,11 +185,11 @@ jobs:
           docker build \
             --build-arg VITE_CLERK_PUBLISHABLE_KEY=${{ secrets.VITE_CLERK_PUBLISHABLE_KEY }} \
             -t $DOCKERHUB_USER/frontend:latest \
-            -t $DOCKERHUB_USER/frontend:${VERSION#v} \
+            -t $DOCKERHUB_USER/frontend:$VERSION \
             ./code/frontend
 
           docker push $DOCKERHUB_USER/frontend:latest
-          docker push $DOCKERHUB_USER/frontend:${VERSION#v}
+          docker push $DOCKERHUB_USER/frontend:$VERSION
 
           if ! gh release create $VERSION \
             --title "Frontend Image Release $VERSION" \
