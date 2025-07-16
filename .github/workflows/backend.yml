@@ -205,7 +205,7 @@ jobs:
       - name: Build and Push Backend1
         if: needs.check-backend-change.outputs.backend1_changed == 'true'
         env:
-          VERSION: v3.7.2
+          VERSION: v3.7.3
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [[ -z "$VERSION" ]]; then
@@ -222,20 +222,10 @@ jobs:
             docker push $DOCKERHUB_USER/backend1:latest
             docker push $DOCKERHUB_USER/backend1:$VERSION
 
-          BACKEND2_CHANGED="${{ needs.check-backend-change.outputs.backend2_changed }}"
-          CHANGED="${{ needs.check-backend-change.outputs.changed }}"
-
-          if [[ "$BACKEND2_CHANGED" == "false" || "$CHANGED" == "true" ]]; then
-            gh release create $VERSION \
-              --title "Backend1 Release $VERSION" \
-              --notes "Production release from dev merge" \
-              --target main
-          fi  
-
       - name: Build and Push Backend2
         if: needs.check-backend-change.outputs.backend2_changed == 'true'
         env:
-          VERSION: v3.7.2
+          VERSION: v3.7.3
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [[ -z "$VERSION" ]]; then
@@ -251,16 +241,6 @@ jobs:
               ./code/backend2
             docker push $DOCKERHUB_USER/backend2:latest
             docker push $DOCKERHUB_USER/backend2:$VERSION
-            
-          BACKEND1_CHANGED="${{ needs.check-backend-change.outputs.backend1_changed }}"
-          CHANGED="${{ needs.check-backend-change.outputs.changed }}"
-
-          if [[ "$BACKEND1_CHANGED" == "false" || "$CHANGED" == "true" ]]; then
-            gh release create $VERSION \
-              --title "Backend2 Release $VERSION" \
-              --notes "Production release from dev merge" \
-              --target main
-          fi 
 
       - name: Set up Trivy
         uses: aquasecurity/setup-trivy@v0.2.0
