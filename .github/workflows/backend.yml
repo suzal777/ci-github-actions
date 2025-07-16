@@ -205,7 +205,7 @@ jobs:
       - name: Build and Push Backend1
         if: needs.check-backend-change.outputs.backend1_changed == 'true'
         env:
-          VERSION: v3.7.1
+          VERSION: v3.7.2
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [[ -z "$VERSION" ]]; then
@@ -235,7 +235,7 @@ jobs:
       - name: Build and Push Backend2
         if: needs.check-backend-change.outputs.backend2_changed == 'true'
         env:
-          VERSION: v3.7.1
+          VERSION: v3.7.2
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [[ -z "$VERSION" ]]; then
