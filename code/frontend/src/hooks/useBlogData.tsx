@@ -22,10 +22,10 @@ interface BlogComment {
 }
 
 // BLOG API (localhost:3001)
-const BLOG_API = "http://3.81.83.155:3001/api/blogs";
-const COMMENTS_API = "http://3.81.83.155:3001/api/comments";
+const BLOG_API = "http://54.172.192.158:3001/api/blogs";
+const COMMENTS_API = "http://54.172.192.158:3001/api/comments";
 // USER API (localhost:3000)
-const USER_API = "http://3.81.83.155:3000/api/users";
+const USER_API = "http://54.172.192.158:3000/api/users";
 
 export function useBlog(id?: string) {
   const [blog, setBlog] = useState<Blog | null>(null);
