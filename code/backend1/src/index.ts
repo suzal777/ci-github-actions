@@ -20,7 +20,7 @@ app.use(requestLogger);
 app.use(express.json());
 app.use(cors(
     {
-        origin: "http://3.81.83.155",
+        origin: "http://54.172.192.158",
         credentials: true // Allow cookies to be sent
     }
 ));

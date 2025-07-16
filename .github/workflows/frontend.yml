@@ -172,7 +172,7 @@ jobs:
 
       - name: Build and Push Frontend
         env:
-          VERSION: v3.7.5
+          VERSION: v4.7.5
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           if [[ -z "$VERSION" ]]; then
